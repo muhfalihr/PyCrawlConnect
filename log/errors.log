@@ -1,0 +1,840 @@
+2023-10-17 18:53:05,009 - ERROR - api:1455 - Exception on /journalsplos/search [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/api/book/journalsplos.py", line 74, in get
+    data = search.search(keyword=keyword, category=category, filterstartdate=start,
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/controller/book/journalsplos/search.py", line 87, in search
+    maxpage = search_results["numFound"] / sizepage
+TypeError: unsupported operand type(s) for /: 'int' and 'str'
+2023-10-17 19:16:30,401 - ERROR - api:1455 - Exception on /journalsplos/search [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/api/book/journalsplos.py", line 74, in get
+    data = search.search(keyword=keyword, category=category, filterstartdate=start,
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/controller/book/journalsplos/search.py", line 94, in search
+    ftc = [caption.rstrip().lstrip()
+TypeError: 'NoneType' object is not iterable
+2023-10-17 19:18:38,663 - ERROR - api:1455 - Exception on /journalsplos/search [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/api/book/journalsplos.py", line 74, in get
+    data = search.search(keyword=keyword, category=category, filterstartdate=start,
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/controller/book/journalsplos/search.py", line 94, in search
+    ftc = [caption.rstrip().lstrip()
+TypeError: 'NoneType' object is not iterable
+2023-10-17 20:07:18,843 - ERROR - api:1455 - Exception on /journalsplos/search [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/api/book/journalsplos.py", line 74, in get
+    data = search.search(keyword=keyword, category=category, filterstartdate=start,
+  File "/home/ubuntu/Desktop/TRAINING/api-downloader/controller/book/journalsplos/search.py", line 89, in search
+    id = doc.get("id", "")
+UnboundLocalError: local variable 'doc' referenced before assignment
+2023-10-19 19:19:45,656 - ERROR - api:1455 - Exception on /librarybpk/search [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/api/book/librarybpk.py", line 30, in get
+    data = search.search(
+  File "/home/ubuntu/Desktop/api-downloader/controller/book/librarybpk/search.py", line 129, in search
+    raw_datas[key] = value
+TypeError: unhashable type: 'PyQuery'
+2023-10-22 20:19:50,877 - ERROR - api:1455 - Exception on /swagger.json [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 407, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 430, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/representations.py", line 25, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "/usr/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/usr/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Boolean is not JSON serializable
+2023-10-22 20:21:31,539 - ERROR - api:1455 - Exception on /swagger.json [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 407, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 430, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/representations.py", line 25, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "/usr/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/usr/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Boolean is not JSON serializable
+2023-10-22 20:27:18,488 - ERROR - api:1455 - Exception on /swagger.json [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 407, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 430, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/representations.py", line 25, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "/usr/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/usr/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Boolean is not JSON serializable
+2023-10-22 20:29:20,496 - ERROR - api:1455 - Exception on /swagger.json [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 407, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 430, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/representations.py", line 25, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "/usr/lib/python3.10/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/usr/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Boolean is not JSON serializable
+2023-10-22 20:30:10,358 - ERROR - flask_restx.api:576 - Unable to render schema
+Traceback (most recent call last):
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/api.py", line 571, in __schema__
+    self._schema = Swagger(self).as_dict()
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/swagger.py", line 239, in as_dict
+    serialized = self.serialize_resource(
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/swagger.py", line 438, in serialize_resource
+    doc = self.extract_resource_doc(resource, url, route_doc=route_doc)
+  File "/home/ubuntu/Desktop/api-downloader/.venv/lib/python3.10/site-packages/flask_restx/swagger.py", line 350, in extract_resource_doc
+    key = (name, param.get("in", "query"))
+AttributeError: 'Boolean' object has no attribute 'get'
+2023-11-29 20:26:58,870 - ERROR - kafka.conn:1096 - <BrokerConnection node_id=bootstrap-0 host=192.168.57.3:2181 <connected> [IPv4 ('192.168.57.3', 2181)]>: socket disconnected
+2023-11-29 20:26:58,973 - ERROR - kafka.conn:1096 - <BrokerConnection node_id=bootstrap-0 host=192.168.57.3:2181 <connected> [IPv4 ('192.168.57.3', 2181)]>: socket disconnected
+2023-11-29 20:26:59,082 - ERROR - kafka.conn:1096 - <BrokerConnection node_id=bootstrap-0 host=192.168.57.3:2181 <connected> [IPv4 ('192.168.57.3', 2181)]>: socket disconnected
+2023-11-29 20:26:59,185 - ERROR - kafka.conn:1096 - <BrokerConnection node_id=bootstrap-0 host=192.168.57.3:2181 <connected> [IPv4 ('192.168.57.3', 2181)]>: socket disconnected
+2023-11-29 20:26:59,288 - ERROR - kafka.conn:1096 - <BrokerConnection node_id=bootstrap-0 host=192.168.57.3:2181 <connected> [IPv4 ('192.168.57.3', 2181)]>: socket disconnected
+2023-11-29 20:34:38,003 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,056 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,105 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,156 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,207 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,258 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,309 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,360 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,411 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,462 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,513 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,564 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,614 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,667 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,716 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,767 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,818 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,869 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,920 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:38,971 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,022 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,080 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,127 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,177 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,228 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,279 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,330 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,381 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,431 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,482 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,533 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,584 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,635 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,686 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,738 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,794 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,841 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,892 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,943 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:39,994 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,044 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,095 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,146 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,197 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,247 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,298 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,349 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,400 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,451 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,502 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,553 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,605 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,656 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,707 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,758 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,809 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,859 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,910 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:40,961 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,011 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,062 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,113 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,164 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,215 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,266 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,316 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,367 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,419 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,470 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,521 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,574 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,624 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,675 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,729 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,780 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,832 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,884 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,929 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:41,982 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,030 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,083 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,132 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,186 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,235 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,285 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,337 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,388 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,441 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,490 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,541 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,593 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,643 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,696 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,744 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,795 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,845 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,896 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,950 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:42,998 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,049 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,101 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,152 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,203 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,253 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,304 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,362 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,408 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,459 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,509 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,560 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,611 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,661 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,712 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,763 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,814 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,865 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,915 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:43,966 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,017 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,068 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,120 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,171 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,222 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,273 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,323 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,374 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,425 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,476 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,527 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,577 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,628 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,678 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,729 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,779 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,830 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,881 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,932 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:44,984 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,035 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,086 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,136 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,188 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,239 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,290 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,341 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,392 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,443 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,494 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,545 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,596 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,646 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,697 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,748 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,799 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,849 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,900 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:45,954 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,002 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,053 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,104 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,155 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,206 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,258 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,308 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,359 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,410 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,461 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,512 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,563 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,614 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,665 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,716 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,768 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,819 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,870 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,921 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:46,973 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,023 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,074 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,125 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,176 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,227 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,278 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,330 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,380 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,431 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,482 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,532 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,583 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,634 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,686 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,736 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,787 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,837 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,889 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,940 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:47,990 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,040 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,091 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,143 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,193 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,244 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,294 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,345 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,396 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,447 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,499 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,549 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,599 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,650 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,701 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,752 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,803 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,854 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,904 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:48,955 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,008 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,059 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,110 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,161 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,212 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,263 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,314 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,364 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,415 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,466 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,517 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,568 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,618 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,669 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,720 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,771 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,821 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,874 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,923 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:49,973 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,024 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,075 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,126 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,177 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,228 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,279 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,330 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,380 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,431 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,482 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,533 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,584 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,635 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,686 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,737 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,787 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,838 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,889 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,940 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:50,990 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,044 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,095 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,146 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,196 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,247 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,298 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,349 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,400 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,452 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,502 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,554 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,605 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,656 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,707 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,757 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,808 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,859 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,910 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:51,961 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,012 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,063 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,114 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,165 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,215 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,266 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,317 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,368 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,420 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,471 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,522 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,572 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,623 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,674 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,725 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,775 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,826 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,877 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,927 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:52,978 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,043 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,085 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,136 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,186 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,237 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,288 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,339 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,390 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,441 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,491 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,542 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,593 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,644 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,694 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,745 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,797 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,847 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,898 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:53,949 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,000 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,051 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,102 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,153 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,204 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,255 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,305 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,356 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,407 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,458 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,509 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,561 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,611 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,662 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,713 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,764 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,815 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,865 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,916 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:54,967 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,018 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,070 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,120 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,171 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,222 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,272 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,323 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,374 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,425 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,476 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,527 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,577 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,628 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,679 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,729 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,780 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,831 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,881 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,932 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:55,983 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,034 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,086 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,136 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,188 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,239 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,292 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,340 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,391 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,441 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,492 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,543 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,594 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,645 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,696 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,746 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,797 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,848 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,899 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:56,950 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,001 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,052 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,103 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,153 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,204 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,255 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,306 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,356 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,407 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,458 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,508 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,559 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,610 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,661 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,712 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,762 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,813 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,864 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,915 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:57,967 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,018 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,069 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,119 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,170 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,221 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,272 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,323 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,373 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,424 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,475 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,526 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,576 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,627 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,678 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,729 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,780 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,830 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,881 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,932 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:58,983 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,034 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,085 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,135 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,186 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,237 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,288 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,339 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,390 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,442 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,492 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,542 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,592 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,644 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,695 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,745 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,796 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,847 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,898 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:34:59,949 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,000 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,051 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,103 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,154 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,204 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,255 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,306 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,357 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,408 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,459 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,510 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,560 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,611 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,662 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,713 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,764 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,814 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,865 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,917 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:00,973 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,022 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,073 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,124 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,175 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,226 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,276 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,327 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,378 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,429 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,480 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,531 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,582 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,633 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,684 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,736 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,786 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,837 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,890 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,939 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:01,990 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,041 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,091 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,142 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,193 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,244 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,295 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,346 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,397 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,449 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,498 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,549 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,600 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,651 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,702 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,753 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,803 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,854 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,905 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:02,956 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,007 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,058 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,109 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,159 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,210 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,261 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,311 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,363 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,414 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,465 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,515 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,566 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,617 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,668 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,719 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,770 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,821 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,872 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,923 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:03,974 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,024 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,075 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,131 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,181 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,232 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,282 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,333 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,384 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,434 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,485 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,536 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,587 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,637 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,688 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,739 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,790 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,840 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,891 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,942 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:04,992 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,043 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,094 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,145 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,195 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,246 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,297 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,348 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,399 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,450 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,501 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,552 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,603 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,654 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,705 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,755 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,806 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,857 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,909 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:05,961 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,010 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,060 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,111 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,162 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,213 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,265 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,314 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,365 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,416 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,467 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,518 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,569 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,620 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,671 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,722 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,773 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,824 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,874 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,925 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:06,976 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,027 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,078 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,128 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,179 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,230 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,281 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,332 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,385 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,433 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,484 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,535 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,586 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,637 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,687 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,738 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,789 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-11-29 20:35:07,840 - ERROR - kafka.conn:315 - DNS lookup failed for kafka:9092 (AddressFamily.AF_UNSPEC)
+2023-12-21 22:05:30,290 - ERROR - apimovie:1455 - Exception on /lk21/filter-movie [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/api/film/lk21.py", line 276, in get
+    data = filter.filter(
+  File "/home/ubuntu/Desktop/api-downloader/controller/film/lk21.py", line 625, in filter
+    raise Exception(
+Exception: Error! status code 404 : Not Found
+2023-12-21 22:10:13,225 - ERROR - apimovie:1455 - Exception on /lk21/filter-movie [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/api/film/lk21.py", line 276, in get
+    data = filter.filter(
+  File "/home/ubuntu/Desktop/api-downloader/controller/film/lk21.py", line 624, in filter
+    raise Exception(
+Exception: Error! status code 404 : Not Found
+2023-12-21 22:11:30,847 - ERROR - apimovie:1455 - Exception on /lk21/filter-movie [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/api/film/lk21.py", line 276, in get
+    data = search.filter(
+  File "/home/ubuntu/Desktop/api-downloader/controller/film/lk21.py", line 624, in filter
+    raise Exception(
+Exception: Error! status code 404 : Not Found
+2023-12-21 22:15:53,926 - ERROR - apimovie:1455 - Exception on /lk21/filter-movie [GET]
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1523, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/app.py", line 1509, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/api.py", line 403, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask_restx/resource.py", line 49, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/ubuntu/Desktop/api-downloader/api/film/lk21.py", line 276, in get
+    data = search.filter(
+  File "/home/ubuntu/Desktop/api-downloader/controller/film/lk21.py", line 624, in filter
+    raise Exception(
+Exception: Error! status code 404 : Not Found
