@@ -8,8 +8,8 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.news.tribunnews.indeks import NewsIndexArsip
+from . import pk
 
 
 tribunnews = Blueprint("tribunnews", __name__)
@@ -168,7 +168,6 @@ class NewsIndex(Resource):
             year = request.values.get("year")
             page = request.values.get("page")
             search = NewsIndexArsip()
-            # pk = ProduserKafka(topic="")
             data = search.newsIndex(
                 site=sites,
                 date=date,
@@ -176,11 +175,10 @@ class NewsIndex(Resource):
                 year=year,
                 page=page
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"
@@ -235,17 +233,15 @@ class NewsArchive(Resource):
             year = request.values.get("year")
             page = request.values.get("page")
             search = NewsIndexArsip()
-            # pk = ProduserKafka(topic="")
             data = search.newsArchive(
                 month=month,
                 year=year,
                 page=page
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"
@@ -313,7 +309,6 @@ class NewsIndexDaerah(Resource):
             year = request.values.get("year")
             page = request.values.get("page")
             search = NewsIndexArsip()
-            # pk = ProduserKafka(topic="")
             daerah = setDaerahEnum(daerah=daerah)
             data = search.newsIndex(
                 site="daerah",
@@ -323,11 +318,10 @@ class NewsIndexDaerah(Resource):
                 page=page,
                 daerah=daerah
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"

@@ -8,8 +8,8 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.news.okezone.indeks import Index
+from . import pk
 
 
 okezone = Blueprint("okezone", __name__)
@@ -147,8 +147,6 @@ class NewsIndex(Resource):
             year = request.values.get("year")
             page = request.values.get("page")
             search = Index()
-            # Uncomment ini jika menggunakan Kafka
-            # pk = ProduserKafka(topic="")
             data = search.newsIndex(
                 site=sites,
                 page=page,
@@ -156,12 +154,10 @@ class NewsIndex(Resource):
                 month=month,
                 date=date
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # Uncomment ini jika menggunakan Kafka
-            # pk.produser(datas=data)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"

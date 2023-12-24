@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.journalsplos.search import Search
 from controller.book.journalsplos.downloader import Downloader
+from . import pk
 
 journalsplos = Blueprint("journalsplos", __name__)
 ns_api = api.namespace("journalsplos", description="Book")
@@ -74,8 +75,16 @@ class ArticleSearch(Resource):
             sortby = request.values.get("sort_by")
             page = request.values.get("page")
             search = Search()
-            data = search.search(keyword=keyword, category=category, filterstartdate=start,
-                                 filterenddate=end, sizepage=pagesize, sortby=sortby, page=page)
+            data = search.search(
+                keyword=keyword,
+                category=category,
+                filterstartdate=start,
+                filterenddate=end,
+                sizepage=pagesize,
+                sortby=sortby,
+                page=page
+            )
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

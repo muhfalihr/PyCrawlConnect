@@ -9,6 +9,7 @@ from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.hathitrust.search import Search
+from . import pk
 
 hathitrust = Blueprint("hathitrust", __name__)
 ns_api = api.namespace("hathitrust", description="Book")
@@ -57,6 +58,7 @@ class BookSearch(Resource):
             search = Search()
             data = search.search(
                 keyword=keyword, category=category, page=page, pagesize=pagesize)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

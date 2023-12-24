@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.springeropen.search import Search
 from controller.book.springeropen.downloader import Downloader
+from . import pk
 
 
 springeropen = Blueprint("springeropen", __name__)
@@ -46,6 +47,7 @@ class BooksSearch(Resource):
             page = request.values.get("page")
             search = Search()
             data = search.search(keyword=keyword, sortby=sortby, page=page)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

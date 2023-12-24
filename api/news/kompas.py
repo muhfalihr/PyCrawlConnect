@@ -8,8 +8,8 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.news.kompas.search import Search
+from . import pk
 
 
 kompas = Blueprint("kompas", __name__)
@@ -72,15 +72,11 @@ class NewsSearch(Resource):
             date = request.values.get("date")
             page = request.values.get("page")
             search = Search()
-            # Uncomment ini jika menggunakan Kafka
-            # pk = ProduserKafka(topic="")
             data = search.search(site=sites, date=date, page=page)
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # Uncomment ini jika menggunakan Kafka
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"

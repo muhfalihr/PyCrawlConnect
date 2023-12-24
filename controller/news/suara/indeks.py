@@ -231,13 +231,6 @@ class Index:
                 "nextpage": nextpage
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/news/suara/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/news/suara/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -246,5 +239,3 @@ class Index:
 if __name__ == "__main__":
     cookies = []
     sb = Index()
-    # cek = sb.newsIndex(page=1, year=2023)
-    # print(cek)

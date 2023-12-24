@@ -8,6 +8,7 @@ from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.librarybpk.search import Search
+from . import pk
 
 librarybpk = Blueprint("librarybpk", __name__)
 ns_api = api.namespace("librarybpk", description="Book")
@@ -30,9 +31,9 @@ class BookSearch(Resource):
             data = search.search(
                 keyword=keyword, page=page
             )
+            pk.produser(datas=data)
             return (
-                success_response(data=data, message="success"),
-                200,
+                success_response(data, message="success"), 200
             )
         except Exception as e:
             if re.search("status code", str(e)):

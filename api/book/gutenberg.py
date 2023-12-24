@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.gutenberg.search import Search
 from controller.book.gutenberg.downloader import Downloader
+from . import pk
 
 gutenberg = Blueprint("gutenberg", __name__)
 ns_api = api.namespace("gutenberg", description="Book")
@@ -48,6 +49,7 @@ class BookSearch(Resource):
             data = search.search(
                 keyword=keyword, search_by=search_by, start_index=start_index
             )
+            pk.produser(datas=data)
             return (
                 success_response(data=data, message=f"success"),
                 200,

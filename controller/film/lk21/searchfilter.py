@@ -12,74 +12,8 @@ from urllib.parse import urljoin, urlencode
 from faker import Faker
 from datetime import datetime
 from googletrans import Translator
-# from helper.html_parser import HtmlParser
-# from helper.utility import Utility
-
-from bs4 import BeautifulSoup
-from pyquery import PyQuery as pq
-
-import unicodedata
-import hashlib
-import pytz
-
-from datetime import datetime
-
-
-class HtmlParser:
-    def __init__(self):
-        pass
-
-    def bs4_parser(self, html, selector):
-        result = None
-        try:
-            html = BeautifulSoup(html, "lxml")
-            result = html.select(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-    def pyq_parser(self, html, selector):
-        result = None
-        try:
-            html = pq(html)
-            result = html(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-
-class Utility:
-    def __init__(self):
-        pass
-
-    def hashmd5(self, url: str):
-        md5hash = hashlib.md5()
-        md5hash.update(url.encode('utf-8'))
-        hashed = md5hash.hexdigest()
-        return hashed
-
-    def timezone(self, date_time, format):
-        tz = pytz.timezone("Asia/Jakarta")
-        date = datetime.strptime(date_time, format)
-        timezone = tz.localize(date).strftime("%z")
-        return timezone
-
-    def UniqClear(self, text):
-        normalized = unicodedata.normalize('NFKD', text)
-        ascii_text = normalized.encode('ascii', 'ignore').decode('ascii')
-        return ascii_text
-
-    def makeunique(self, datas: list):
-        seen = set()
-        resultlist = []
-
-        for value in datas:
-            if value not in seen:
-                resultlist.append(value)
-                seen.add(value)
-        return resultlist
+from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class SearchFilter:
@@ -381,13 +315,6 @@ class SearchFilter:
                 "result": datas
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/film/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/film/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -647,13 +574,6 @@ class SearchFilter:
                 "nextpage": nextpage
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/film/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/film/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -662,10 +582,3 @@ class SearchFilter:
 if __name__ == "__main__":
     cookies = []
     sb = SearchFilter()
-    # cek = sb.filter(
-    #     orderby="populer",
-    #     order="desc",
-    #     page="931",
-    #     type="1"
-    # )
-    # print(cek)

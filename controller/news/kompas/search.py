@@ -289,13 +289,6 @@ class Search:
                 "nextpage": nextpage
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/news/kompas/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/news/kompas/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -304,5 +297,3 @@ class Search:
 if __name__ == "__main__":
     cookies = []
     sb = Search()
-    # cek = sb.search(site="all", page=2)
-    # print(cek)

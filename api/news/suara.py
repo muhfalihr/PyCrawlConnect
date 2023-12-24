@@ -8,8 +8,8 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.news.suara.indeks import Index
+from . import pk
 
 
 suara = Blueprint("suara", __name__)
@@ -59,7 +59,6 @@ class NewsIndex(Resource):
             year = request.values.get("year")
             page = request.values.get("page")
             search = Index()
-            # pk = ProduserKafka(topic="")
             data = search.newsIndex(
                 page=page,
                 year=year
@@ -67,7 +66,7 @@ class NewsIndex(Resource):
             reponse = (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
+            pk.produser(datas=reponse)
             return reponse
         except Exception as e:
             if re.search("status code", str(e)):

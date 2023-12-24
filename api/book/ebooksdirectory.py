@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.ebooksdirectory.allcategories import AllCategories
 from controller.book.ebooksdirectory.getbooks import GetBooks
+from . import pk
 
 ebooksdirectory = Blueprint("ebooksdirectory", __name__)
 ns_api = api.namespace("ebooksdirectory", description="Book")

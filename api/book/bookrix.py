@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.bookrix.search import Search
 from controller.book.bookrix.downloader import Downloader
+from . import pk
 
 bookrix = Blueprint("bookrix", __name__)
 ns_api = api.namespace("bookrix", description="Book")
@@ -33,6 +34,7 @@ class BookSearch(Resource):
             page = request.values.get("page")
             search = Search()
             data = search.search(keyword=keyword, page=page)
+            pk.produser(datas=data)
             return (
                 success_response(data=data, message=f"success"),
                 200,

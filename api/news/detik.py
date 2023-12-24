@@ -8,8 +8,8 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.news.detik.indeks import Index
+from . import pk
 
 
 detik = Blueprint("detik", __name__)
@@ -139,8 +139,6 @@ class NewsIndex(Resource):
             page = request.values.get("page")
             daerah = request.values.get("region")
             search = Index()
-            # Uncomment ini jika menggunakan Kafka
-            # pk = ProduserKafka(topic="")
             data = search.newsIndex(
                 site="news",
                 page=page,
@@ -149,12 +147,10 @@ class NewsIndex(Resource):
                 date=date,
                 daerah=daerah
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # Uncomment ini jika menggunakan Kafka
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"
@@ -222,8 +218,6 @@ class NewsIndexDaerah(Resource):
             page = request.values.get("page")
             daerah = request.values.get("region")
             search = Index()
-            # Uncomment ini jika menggunakan Kafka
-            # pk = ProduserKafka(topic="")
             data = search.newsIndex(
                 site="daerah",
                 page=page,
@@ -232,12 +226,10 @@ class NewsIndexDaerah(Resource):
                 date=date,
                 daerah=daerah
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # Uncomment ini jika menggunakan Kafka
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"

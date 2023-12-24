@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.linkspringer.search import Search, BooksSeries
 from controller.book.linkspringer.downloader import Downloader
+from . import pk
 
 
 linkspringer = Blueprint("linkspringer", __name__)
@@ -69,8 +70,14 @@ class BooksSearch(Resource):
             date_published = request.values.get("date_published")
             page = request.values.get("page")
             search = Search()
-            data = search.search(keyword=keyword, page=page, sortby=sortby,
-                                 contenttype=contenttype, pubdate=date_published)
+            data = search.search(
+                keyword=keyword,
+                page=page,
+                sortby=sortby,
+                contenttype=contenttype,
+                pubdate=date_published
+            )
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

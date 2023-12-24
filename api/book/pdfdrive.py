@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.pdfdrive.search import Search
 from controller.book.pdfdrive.categories import Categories
+from . import pk
 
 
 pdfdrive = Blueprint("pdfdrive", __name__)

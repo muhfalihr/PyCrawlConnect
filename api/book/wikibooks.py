@@ -10,6 +10,7 @@ from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.wikibooks.action import Search, FeaturedBooks, DepartementEnum
 from controller.book.wikibooks.downloader import Downloader
+from . import pk
 
 
 wikibooks = Blueprint("wikibooks", __name__)
@@ -54,6 +55,7 @@ class BooksSearch(Resource):
             page = request.values.get("page")
             search = Search()
             data = search.search(keyword=keyword, page=page, limit=pagesize)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

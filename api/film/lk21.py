@@ -1,4 +1,5 @@
 import datetime
+import requests
 import json
 import re
 import io
@@ -8,41 +9,11 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from helper.kafka_produser import ProduserKafka
 from controller.film.lk21.searchfilter import SearchFilter
-
-
-from bs4 import BeautifulSoup
-from pyquery import PyQuery as pq
-
-import requests
+from helper.html_parser import HtmlParser
 from requests.cookies import RequestsCookieJar
+from . import pk
 from faker import Faker
-
-
-class HtmlParser:
-    def __init__(self):
-        pass
-
-    def bs4_parser(self, html, selector):
-        result = None
-        try:
-            html = BeautifulSoup(html, "lxml")
-            result = html.select(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-    def pyq_parser(self, html, selector):
-        result = None
-        try:
-            html = pq(html)
-            result = html(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
 
 
 class OrderBy(Enum):
@@ -201,13 +172,11 @@ class SearchMovie(Resource):
         try:
             keyword = request.values.get("keyword")
             search = SearchFilter()
-            # pk = ProduserKafka()
             data = search.search(keyword=keyword)
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"
@@ -290,7 +259,6 @@ class FilterMovie(Resource):
             country = FE.key(request.values.get("country"))
             hdonly = request.values.get("hdonly")
             search = SearchFilter()
-            # pk = ProduserKafka()
             data = search.filter(
                 orderby=orderby,
                 order=order,
@@ -301,11 +269,10 @@ class FilterMovie(Resource):
                 country=country,
                 hdonly=hdonly
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"
@@ -388,7 +355,6 @@ class FilterSeries(Resource):
             country = FE.key(request.values.get("country"))
             hdonly = request.values.get("hdonly")
             search = SearchFilter()
-            # pk = ProduserKafka()
             data = search.filter(
                 orderby=orderby,
                 order=order,
@@ -399,11 +365,10 @@ class FilterSeries(Resource):
                 country=country,
                 hdonly=hdonly
             )
-            reponse = (
+            pk.produser(datas=data)
+            return (
                 success_response(data, message="success"), 200
             )
-            # pk.produser(datas=reponse)
-            return reponse
         except Exception as e:
             if re.search("status code", str(e)):
                 pattern = r"status code (\d+) : (.+)"

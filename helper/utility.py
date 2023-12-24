@@ -25,3 +25,13 @@ class Utility:
         normalized = unicodedata.normalize('NFKD', text)
         ascii_text = normalized.encode('ascii', 'ignore').decode('ascii')
         return ascii_text
+
+    def makeunique(self, datas: list):
+        seen = set()
+        resultlist = []
+
+        for value in datas:
+            if value not in seen:
+                resultlist.append(value)
+                seen.add(value)
+        return resultlist

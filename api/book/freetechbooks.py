@@ -9,6 +9,7 @@ from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
 from controller.book.freetechbooks.all import All
+from . import pk
 
 freetechbooks = Blueprint("freetechbooks", __name__)
 ns_api = api.namespace("freetechbooks", description="Book")
