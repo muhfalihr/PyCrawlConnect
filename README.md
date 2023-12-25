@@ -27,16 +27,16 @@ By using PyCrawlConnect, users can easily manage and analyze crawled data from v
 ## Requirements
 
 - **Virtual Machine**
-  This application runs on a virtual machine, so before you install the application, you have to prepare the virtual machine first. See [Virtual Machine setup steps]().
+  This application runs on a virtual machine, so before you install the application, you have to prepare the virtual machine first. See [Virtual Machine setup steps](https://github.com/muhfalihr/PyCrawlConnect/blob/master/md/VM.md).
 
 - **Python**
-  Already installed Python with version 3.10.12. See the [Installation and Setting up Python]().
+  Already installed Python with version 3.10.12. See the [Installation and Setting up Python](https://github.com/muhfalihr/PyCrawlConnect/blob/master/md/PY.md).
 
 - **Kafka**
-  If you want to run this and then send the data to the Kafka Topic then you have to install and run Kafka first. See [How to Install and Run Kafka]().
+  If you want to run this and then send the data to the Kafka Topic then you have to install and run Kafka first. See [How to Install and Run Kafka](https://github.com/muhfalihr/PyCrawlConnect/blob/master/md/KAFKA.md).
 
 - **Elasticsearch**
-  If the data consumed by Kafa wants to be forwarded to ElasticSearch, you must install ElasticSearch first. See the Steps to [Install and Configure Elasticsearch]().
+  If the data consumed by Kafa wants to be forwarded to ElasticSearch, you must install ElasticSearch first. See the Steps to [Install and Configure Elasticsearch](https://github.com/muhfalihr/PyCrawlConnect/blob/master/md/ES.md).
 
 ## Clone the repository to your directory
 
