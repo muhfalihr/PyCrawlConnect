@@ -1,38 +1,42 @@
 [![Instagram: ____mfr.py](https://img.shields.io/badge/Instagram-Follow%20Me-blue?style=social&logo=instagram)](https://www.instagram.com/_____mfr.py/)
 
-# CrawlerKafka_Connect
+# PyCrawlConnect
 
 ![Source: https://twitter.com/chocofy/status/1735925835763531984/photo/1](https://github.com/muhfalihr/mystorage/blob/master/pacar2.jpeg?raw=true)
 
 **Application Description:**
-"CrawlerKafka Connect" is an innovative application developed using advanced programming languages to perform crawling tasks and generate efficient data using Apache Kafka. This application is designed to allow users to automatically collect information from various online sources and deliver it to the Apache Kafka ecosystem for further processing.
+
+PyCrawlConnect is an application developed using the Python programming language with the aim of connecting data obtained from web crawling to Apache Kafka, and subsequently forwarding this data to Elasticsearch. This application is designed to provide an efficient solution for managing crawled data using cutting-edge technologies.
 
 **Key Features:**
 
-1. **Efficient Crawling:**
-   The application employs an efficient crawling algorithm to extract data from websites and other online sources. With this capability, users can easily customize and configure the crawling targets according to their needs.
+1. **Web Data Crawling:** The application can crawl data from various websites using web scraping techniques or APIs provided by specific sites. The crawling module is designed for flexibility and easy configuration.
 
-2. **Advanced Programming Language:**
-   Developed with a sophisticated and modern programming language, the application offers high performance, security, and ease of maintenance. The chosen programming language has been carefully selected to support scalable development and easy integration.
+2. **Kafka Integration:** PyCrawlConnect features the capability to connect crawled data to Apache Kafka. Kafka is used as middleware to manage message queues, ensuring reliability and fault tolerance in the data delivery process.
 
-3. **Kafka Integration:**
-   Data successfully extracted by the crawler is automatically sent and published to the specified Kafka topics. This integration ensures real-time data delivery and enables seamless synchronization with other applications or systems using Kafka as a communication backbone.
+3. **Elasticsearch Connector:** After data is generated and sent via Kafka, this application can forward the data to Elasticsearch. This allows users to store and index crawled data in Elasticsearch for easy analysis and search.
 
-4. **Flexible Configuration:**
-   The application comes with flexible configuration settings, allowing users to adjust crawling parameters and Kafka configurations according to their project needs. This provides a high level of control over the data retrieval and delivery processes.
+4. **Easy Configuration:** PyCrawlConnect is designed with easily configurable settings. Users can quickly adjust crawling settings, Kafka configurations, and Elasticsearch parameters through a structured configuration file.
 
-5. **Monitoring and Logging:**
-   To facilitate monitoring and troubleshooting, the application is equipped with a comprehensive logging system. Users can easily track the crawling and data delivery processes through a user-friendly monitoring dashboard.
+5. **Comprehensive Documentation:** The project comes with comprehensive documentation that explains installation steps, configuration, and how to use the application. This documentation will assist developers or other users who wish to contribute to or use the application.
 
-"CrawlerKafka Connect" is the right solution for developers and organizations that prioritize efficiency and reliability in collecting and distributing data. With a focus on high performance and integration with Apache Kafka, this application opens the door for the development of innovative and real-time data applications.
+6. **Open Source:** PyCrawlConnect is an open-source project available on the GitHub platform. Developers can collaborate, provide feedback, or make contributions through pull requests.
+
+By using PyCrawlConnect, users can easily manage and analyze crawled data from various sources in an efficient and structured manner. This project is expected to provide a reliable solution in the context of real-time web data processing.
 
 ## Requirements
+
+- **Virtual Machine**
+  This application runs on a virtual machine, so before you install the application, you have to prepare the virtual machine first. See [Virtual Machine setup steps]().
 
 - **Python**
   Already installed Python with version 3.10.12. See the [Installation and Setting up Python]().
 
 - **Kafka**
   If you want to run this and then send the data to the Kafka Topic then you have to install and run Kafka first. See [How to Install and Run Kafka]().
+
+- **Elasticsearch**
+  If the data consumed by Kafa wants to be forwarded to ElasticSearch, you must install ElasticSearch first. See the Steps to [Install and Configure Elasticsearch]().
 
 ## Clone the repository to your directory
 
@@ -44,10 +48,10 @@ sudo apt install gh
 gh auth login
 
 # Clonig Repository
-gh repo clone muhfalihr/CrawlerKafka_Connect
+gh repo clone muhfalihr/PyCrawlConnect
 
 # Change Directory
-cd CrawlerKafka_Connect
+cd PyCrawlConnect
 ```
 
 # WAIT
