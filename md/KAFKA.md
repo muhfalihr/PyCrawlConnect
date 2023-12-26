@@ -38,7 +38,7 @@
 
   ```sh
   # create a data folder in the Kafka directory.
-  mkdir kafka_2.13-3.2.0/data
+  mkdir -p kafka_2.13-3.2.0/data
 
   # Edit the server.properties configuration file
   nano kafka_2.13-3.2.0/config/server.properties
@@ -88,9 +88,4 @@
 
   ```sh
   unzip cmak-*.zip
-  ```
-
-- Running CMAK
-  ```sh
-  CMAK/target/universal/cmak-*/bin/cmak
   ```

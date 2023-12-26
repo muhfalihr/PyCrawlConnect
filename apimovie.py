@@ -5,7 +5,7 @@ from flask import Flask
 from gevent.pywsgi import WSGIServer
 from library.logger import setup_logging
 
-from api.film.lk21 import lk21
+from api.movie.lk21 import lk21
 
 setup_logging()
 logger = logging.getLogger(__name__)

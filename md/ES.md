@@ -42,7 +42,7 @@
   path.data: /var/lib/elasticsearch/
   path.logs: /var/log/elasticsearch/
   path.home: /usr/share/elasticsearch/
-  network.host: 172.0.0.1
+  network.host: 192.168.57.8
   http.port: 9200
   discovery.type: single-node
   ```
@@ -140,7 +140,7 @@
 - Making requests using the curl tool to the Elasticsearch Cluster.
 
   ```sh
-  curl -u elastic:password 172.0.0.1:9200
+  curl -u elastic:password 192.168.57.8:9200
   ```
 
   Informations:
@@ -151,7 +151,7 @@
 - If successful, the response will be like this:
 
   ```
-  root@singlenode:~# curl 172.0.0.1:9200
+  root@singlenode:~# curl 192.168.57.8:9200
   {
   "name": "nodename",
   "cluster_name": "SingleName",
@@ -190,9 +190,9 @@
 
   ```
   server.port: 5601
-  server.host: "172.0.0.1"
+  server.host: "192.168.57.8"
   server.name: "nodename"
-  elasticsearch.hosts: ["http://172.0.0.1:9200"]
+  elasticsearch.hosts: ["http://192.168.57.8:9200"]
   elasticsearch.username: "elastic"
   elasticsearch.password: "password"
   ```
@@ -209,10 +209,10 @@
   systemctl start kibana.service
   ```
 
-- To run Kibana UI you have to open a browser, then type elasticsearch.hosts in the kibana.yml file earlier.
+- To run Kibana UI you have to open a browser, then type kibana hosts in the kibana.yml file earlier.
 
   ```
-  http://172.0.0.1:9200
+  http://192.168.57.8:5601
 
   If the login form appears, it means that your installation and configuration of Kibana has been successful.
   But if "Kibana server is not yet" appears, this means the installation failed (make sure the configuration is correct).

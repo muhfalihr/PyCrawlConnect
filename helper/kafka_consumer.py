@@ -32,8 +32,7 @@ class ConsumerKafka:
             verify_certs=True,
             timeout=60
         )
-        date = datetime.now().strftime("%Y%m%d")
-        index_name = f'crawl-data-{date}'
+        index_name = f'crawl-data-{self.topic}'
         for msg in self.consumer:
             resp = es.index(
                 index=index_name,
@@ -51,7 +50,7 @@ class ConsumerKafka:
             print(msg.value)
 
 
-if __name__ == "__main__":
+def main():
     load_dotenv()
 
     # kafka
@@ -81,3 +80,7 @@ if __name__ == "__main__":
         )
     else:
         consumen.consumer_msg()
+
+
+if __name__ == "__main__":
+    main()
