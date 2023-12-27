@@ -241,3 +241,7 @@ systemctl start kibana.service
   ```
   GET <index>/_doc/<_id>
   ```
+
+  ## License
+
+[MIT License](https://github.com/muhfalihr/PyCrawlConnect/blob/master/LICENSE) - Copyright (c) 2023 Muhammad Falih Romadhoni.
