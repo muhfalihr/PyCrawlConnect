@@ -22,7 +22,6 @@ class SearchFilter:
         self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
-        self.utility = Utility()
         self.translator = Translator()
 
         self.headers = dict()
@@ -129,7 +128,7 @@ class SearchFilter:
                     searchitem_link = f"https://tv2.lk21official.co{searchitem_link}"
 
                 links.append(searchitem_link)
-            links = self.utility.makeunique(links)
+            links = Utility.makeunique(links)
             for link in links:
                 resp = self.session.request(
                     method="GET",
@@ -144,7 +143,7 @@ class SearchFilter:
                 content = resp.content
                 if status_code == 200:
                     html = content.decode("utf-8")
-                    id = self.utility.hashmd5(url=link)
+                    id = Utility.hashmd5(url=link)
                     title = self.regex(
                         self.parser.pyq_parser(
                             html,
@@ -379,7 +378,7 @@ class SearchFilter:
                     elif title_link != "NONTON SERIES":
                         links.append(filteritem_link)
 
-                links = self.utility.makeunique(links)
+                links = Utility.makeunique(links)
             maxpage = self.regex(
                 self.parser.pyq_parser(
                     html,
@@ -405,7 +404,7 @@ class SearchFilter:
                     continue
                 if status_code == 200:
                     html = content.decode("utf-8")
-                    id = self.utility.hashmd5(url=link)
+                    id = Utility.hashmd5(url=link)
                     if type == "2":
                         title = (
                             self.parser.pyq_parser(

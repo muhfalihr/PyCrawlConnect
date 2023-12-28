@@ -11,4 +11,4 @@ bootstrap_servers = os.environ.get("IPKAFKA")
 script_path = os.path.realpath(__file__)
 topic = os.path.dirname(script_path).split("/")[-1]
 
-pk = ProduserKafka(topic=topic, bootstrap_servers=bootstrap_servers, run=run)
+pk = ProduserKafka(topic=topic, run=run, bootstrap_servers=bootstrap_servers)

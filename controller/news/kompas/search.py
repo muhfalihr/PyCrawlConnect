@@ -22,7 +22,6 @@ class Search:
         self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
-        self.utility = Utility()
 
         self.headers = dict()
         self.headers["Accept"] = "application/json, text/plain, */*"
@@ -152,12 +151,12 @@ class Search:
                         .strptime(newsdatetime, "%Y%m%d%H%M%S%f")
                         .strftime("%Y-%m-%dT%H:%M:%S")
                     )
-                    timezone = self.utility.timezone(
+                    timezone = Utility.timezone(
                         date_time=newsdatetime,
                         format="%Y%m%d%H%M%S%f"
                     )
                     crawling_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    id = self.utility.hashmd5(url=link)
+                    id = Utility.hashmd5(url=link)
                     source = (
                         self.parser.pyq_parser(
                             html,
@@ -231,7 +230,7 @@ class Search:
                             .text()
                         )
                     body_article = (
-                        self.utility.UniqClear(body_article)
+                        Utility.UniqClear(body_article)
                         .replace("\n", " ")
                         .lstrip("-")
                         .lstrip("\u2013")

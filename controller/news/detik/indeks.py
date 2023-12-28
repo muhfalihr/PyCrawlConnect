@@ -21,7 +21,6 @@ class Index:
         self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
-        self.utility = Utility()
 
         self.headers = dict()
         self.headers["Accept"] = "application/json, text/plain, */*"
@@ -137,12 +136,12 @@ class Index:
                         )
                         .strftime("%Y-%m-%dT%H:%M:00")
                     )
-                    timezone = self.utility.timezone(
+                    timezone = Utility.timezone(
                         date_time=pubminute,
                         format="%Y%m%d%H%M"
                     )
                     crawling_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    id = self.utility.hashmd5(url=link)
+                    id = Utility.hashmd5(url=link)
                     lang = (
                         self.parser.pyq_parser(
                             html,
@@ -181,7 +180,7 @@ class Index:
                         )
                         .text()
                     )
-                    body_article = self.utility.UniqClear(body_article)
+                    body_article = Utility.UniqClear(body_article)
                     desc = f"{body_article[:100]}..."
                     tags = []
                     for tag in self.parser.pyq_parser(

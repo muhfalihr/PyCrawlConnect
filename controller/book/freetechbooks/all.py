@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class All:
@@ -49,11 +50,6 @@ class All:
         )
         field.find("strong").remove()
         return field.text().lstrip(': ').replace('n/a', '').replace('N/A', '')
-
-    def unique(self, inList):
-        unique_list = []
-        [unique_list.append(x) for x in inList if x not in unique_list]
-        return unique_list
 
     def crawldatas(self, url, page, proxy, cookies, **kwargs):
         resp = self.session.request(
@@ -349,7 +345,7 @@ class All:
                             .attr('href')
                         )
                         links.append(link)
-                    links = self.unique(links)
+                    links = Utility.makeunique(links)
                     table = self.parser.pyq_parser(
                         div,
                         'table[class="table table-hover table-responsive"] tbody tr'
