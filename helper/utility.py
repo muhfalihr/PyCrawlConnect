@@ -1,6 +1,8 @@
 import unicodedata
 import hashlib
+import json
 import pytz
+import re
 
 from datetime import datetime
 
@@ -47,3 +49,9 @@ class Utility:
         unique_list = []
         [unique_list.append(x) for x in datas if x not in unique_list]
         return unique_list
+
+    @staticmethod
+    def convertws(data: dict):
+        dumps = json.dumps(data)
+        without_whitespace = re.sub(r'\s+', '', dumps)
+        return without_whitespace
