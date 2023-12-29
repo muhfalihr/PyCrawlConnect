@@ -223,7 +223,6 @@ class ConsumerKafkaES:
             sasl_oauth_token_provider (AbstractTokenProvider): OAuthBearer token provider
                 instance. (See kafka.oauth.abstract). Default: None
         """
-
         if topic is not None:
             if not isinstance(topic, str):
                 raise TypeError(
@@ -241,9 +240,10 @@ class ConsumerKafkaES:
             value_deserializer=lambda x: loads(x.decode('utf-8')),
             **configs,
         )
+        self.configs = configs
         self.topic = topic
 
-    def elastic(self, hosts: str | list, transport_class=..., **kwargs):
+    def elastic(self, hosts: str | list, **kwargs):
         """
         :arg hosts: list of nodes, or a single node, we should connect to.
             Node should be a dictionary ({"host": "localhost", "port": 9200}),
@@ -265,18 +265,16 @@ class ConsumerKafkaES:
                         type(hosts).__name__)
                 )
             if isinstance(hosts, (str, list)):
-                return
+                hosts = hosts
         else:
             raise ValueError(
                 f"Sorry, the `hosts` parameter is required. Please enter hosts value parameter."
             )
-
         client: Elasticsearch = Elasticsearch(
-            hosts,
-            transport_class,
+            hosts=hosts,
             **kwargs
         )
-        index_name = f'crawl-data-{self.topic}'
+        index_name = f'data-{self.configs["group_id"]}'
         for msg in self.consumer:
             resp = client.index(
                 index=index_name,
@@ -320,7 +318,8 @@ def main():
         enable_auto_commit=True
     )
 
-    if forward == "yes":
+    # The book topic is not indexed in ElasticSearch because the field structure is different.
+    if forward == "yes" or topic != "book":
         consumen.elastic(
             hosts=host,
             http_auth=(username, password),

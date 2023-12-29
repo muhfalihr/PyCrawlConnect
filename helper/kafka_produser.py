@@ -251,7 +251,7 @@ class ProduserKafka:
             bootstrap_servers=configs["bootstrap_servers"]
         )
         self.topic = self.tk.newtopic(
-            topic=topic,
+            name=topic,
             num_partitions=1,
             replication_factor=1
         )

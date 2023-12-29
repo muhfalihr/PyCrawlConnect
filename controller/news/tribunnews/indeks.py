@@ -258,13 +258,6 @@ class NewsIndexArsip:
                 "nextpage": nextpage
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/news/tribunnews/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/news/tribunnews/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -492,13 +485,6 @@ class NewsIndexArsip:
                 "nextpage": nextpage
             }
             return result
-            # results = json.dumps(result, indent=4)
-            # try:
-            #     with open("controller/news/tribunnews/result.json", "w") as file:
-            #         file.write(results)
-            # except Exception:
-            #     with open("controller/news/tribunnews/result.json", "r+") as file:
-            #         file.write(results)
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -507,6 +493,3 @@ class NewsIndexArsip:
 if __name__ == "__main__":
     cookies = []
     sb = NewsIndexArsip()
-    # cek = sb.newsArchive(page=1, year="2023")
-    # cek = sb.newsIndex(page=1, site="news", year="2023", month="12", date="05")
-    # print(cek)

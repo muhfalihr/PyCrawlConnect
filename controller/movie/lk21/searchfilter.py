@@ -1,3 +1,6 @@
+import unicodedata
+import pytz
+import hashlib
 import requests
 import re
 import json
@@ -52,21 +55,25 @@ class SearchFilter:
                     matches = pattern.findall(text)
                     if matches:
                         return matches[0]
+                    return None
                 case "site":
                     pattern = re.compile(r'https?://\S+')
                     matches = pattern.search(text)
                     if matches:
                         return matches.group().rstrip("')")
+                    return None
                 case "path":
                     pattern = re.compile(r"^https?://.*?/(.*)$")
                     matches = pattern.search(text)
                     if matches:
                         return matches.group(1)
+                    return None
                 case "page":
                     pattern = re.compile(r'\b(\d+)\s+total\s+halaman\b')
                     matches = pattern.search(text)
                     if matches:
                         return int(matches.group(1))
+                    return None
         except Exception:
             return text
 
@@ -77,7 +84,7 @@ class SearchFilter:
                 result = date.strftime("%Y%m%d")
             elif field == "uploaded":
                 date = datetime.strptime(text, "%B %d, %Y %I:%M %p")
-                result = date.strftime("%Y-%m-%d %H:%M:%S")
+                result = date.strftime("%Y-%m-%dT%H:%M:%S")
             return result
         except Exception:
             return text
@@ -152,7 +159,7 @@ class SearchFilter:
                         .text(),
                         "title"
                     )
-
+                    title = title if title else ""
                     synopsis = (
                         self.parser.pyq_parser(
                             html,
@@ -164,7 +171,6 @@ class SearchFilter:
                         .text()
                         .replace("\n", " ")
                     )
-
                     site = self.regex(
                         self.parser.pyq_parser(
                             html,
@@ -224,17 +230,17 @@ class SearchFilter:
                         html,
                         'div[class="col-xs-9 content"] div'
                     ):
-                        h2_text = self.translator.translate(
+                        h2_text = (
                             self.parser.pyq_parser(
                                 h2,
                                 'div h2'
                             )
-                            .text(),
-                            src='id',
-                            dest='en'
+                            .text()
+                        )
+                        h2_text = self.translator.translate(
+                            h2_text, dest='en', src='id'
                         ).text.lower()
                         h2_list.append(h2_text)
-
                     for index, value in enumerate(h2_list):
                         match value:
                             case "movie star":
