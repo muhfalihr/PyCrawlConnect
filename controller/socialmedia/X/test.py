@@ -312,11 +312,7 @@ class X:
                     )
                     new = initially.strftime("%Y-%m-%dT%H:%M:%S")
                     result["result"]["legacy"].update({key: new})
-
-            results = json.dumps(result, indent=4)
-            with open("controller/socialmedia/twitter/profile.json", "w") as file:
-                file.write(results)
-            # return result
+            return result
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -389,16 +385,22 @@ class X:
         status_code = resp.status_code
         content = resp.content
         if status_code == 200:
-            response = json.loads(content.decode('utf-8'))
-            return response
-            # data = json.dumps(response, indent=4)
-            # with open("controller/socialmedia/twitter/userspost.json", "w") as file:
-            #     file.write(data)
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            return data
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def media(self, screen_name):
+    def media(self, screen_name: str = None) -> dict:
+        if screen_name is not None:
+            if not isinstance(screen_name, str):
+                raise TypeError(
+                    "Invalid \"media\" parameter, value must be type str, {} passed".format(
+                        type(screen_name).__name__)
+                )
+            if isinstance(screen_name, str):
+                pass
         profile = self.profile(screen_name=screen_name)
         userId = profile["result"]["rest_id"]
         raw = self.userspost(userId=userId)
@@ -465,11 +467,7 @@ class X:
             "result": datas
         }
         return result
-        # dumps = json.dumps(result, indent=4)
-        # with open("controller/socialmedia/twitter/media.json", "w") as file:
-        #     file.write(dumps)
 
 
 if __name__ == "__main__":
     sb = X()
-    cek = sb.profile(screen_name="AM_EllaJKT48")
