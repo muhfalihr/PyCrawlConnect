@@ -52,6 +52,9 @@ class Utility:
 
     @staticmethod
     def convertws(data: dict):
+        """
+        Converts dict data to string and removes spaces at the end of the text.
+        """
         dumps = json.dumps(data)
         without_whitespace = re.sub(r'\s+', '', dumps)
         return without_whitespace

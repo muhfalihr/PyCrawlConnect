@@ -5,7 +5,7 @@ from flask import Flask
 from gevent.pywsgi import WSGIServer
 from library.logger import setup_logging
 
-from api.movie.lk21 import lk21
+from api.socialmedia.x import x
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -29,9 +29,9 @@ if __name__ == "__main__":
     app.register_blueprint(sdk)
     application = app
 
-    logger.info(f"listening to http://10.0.2.15:{args.port}")
+    logger.info(f"listening to http://192.168.57.9:{args.port}")
     http_server = WSGIServer(
-        ("10.0.2.15", args.port),
+        ("192.168.57.9", args.port),
         application, log=logger
     )
     http_server.serve_forever()

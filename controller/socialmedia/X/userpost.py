@@ -14,89 +14,11 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode, quote
 from faker import Faker
 from datetime import datetime
-# from helper.html_parser import HtmlParser
-# from helper.utility import Utility
-
-from bs4 import BeautifulSoup
-from pyquery import PyQuery as pq
+from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
-class HtmlParser:
-    def __init__(self):
-        pass
-
-    def bs4_parser(self, html, selector):
-        result = None
-        try:
-            html = BeautifulSoup(html, "lxml")
-            result = html.select(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-    def pyq_parser(self, html, selector):
-        result = None
-        try:
-            html = pq(html)
-            result = html(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-
-class Utility:
-    """
-    Encapsulates a collection of utility functions for various tasks.
-    """
-    @staticmethod
-    def hashmd5(url: str):
-        """Calculates the MD5 hash of the given URL.
-        Returns the hashed value as a hexadecimal string.
-        """
-        md5hash = hashlib.md5()
-        md5hash.update(url.encode('utf-8'))
-        hashed = md5hash.hexdigest()
-        return hashed
-
-    @staticmethod
-    def timezone(date_time, format):
-        """Converts a datetime string to the corresponding time zone offset for Asia/Jakarta.
-        Takes the datetime string, a format string specifying its format, and returns the offset as a string like "+0700".
-        """
-        tz = pytz.timezone("Asia/Jakarta")
-        date = datetime.strptime(date_time, format)
-        timezone = tz.localize(date).strftime("%z")
-        return timezone
-
-    @staticmethod
-    def UniqClear(text):
-        """Normalizes and removes non-ASCII characters from the given text.
-        Returns the ASCII-only version of the text.
-        """
-        normalized = unicodedata.normalize('NFKD', text)
-        ascii_text = normalized.encode('ascii', 'ignore').decode('ascii')
-        return ascii_text
-
-    @staticmethod
-    def makeunique(datas: list):
-        """
-        Removes duplicate elements from a list while preserving order.
-        Returns a new list containing only unique elements.
-        """
-        unique_list = []
-        [unique_list.append(x) for x in datas if x not in unique_list]
-        return unique_list
-
-    @staticmethod
-    def convertws(data: dict):
-        dumps = json.dumps(data)
-        without_whitespace = re.sub(r'\s+', '', dumps)
-        return without_whitespace
-
-
-class X:
+class Users:
     def __init__(self):
         self.session = Session()
         self.jar = RequestsCookieJar()
@@ -401,73 +323,79 @@ class X:
                 )
             if isinstance(screen_name, str):
                 pass
-        profile = self.profile(screen_name=screen_name)
-        userId = profile["result"]["rest_id"]
-        raw = self.userspost(userId=userId)
-        deep = raw["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"][1]
-        datas = []
-        for entry in deep["entries"]:
-            deeper = entry["content"]["itemContent"]["tweet_results"]["result"]
-            id = deeper["rest_id"]
-            unmention_data = deeper["unmention_data"]
-            views = {
-                key: value for key, value in deeper["views"].items()
-                if key != "state"
-            } if "views" in deeper else dict()
-            self.__removeallentites(
-                keyword="entities",
-                datas=deeper
-            )
-            self.__removeallentites(
-                keyword="extended_entities",
-                datas=deeper
-            )
-
-            KEYS_REMOVE = [
-                "conversation_id_str",
-                "display_text_range",
-                "created_at",
-                "is_quote_status",
-                "possibly_sensitive",
-                "possibly_sensitive_editable",
-                "quoted_status_id_str",
-                "quoted_status_permalink",
-                "favorited",
-                "retweeted",
-                "user_id_str",
-                "id_str"
-            ]
-
-            for key in list(
-                self.__generatekey(
-                    datas=deeper,
-                    keys=KEYS_REMOVE,
-                    keyword="legacy"
+        try:
+            profile = self.profile(screen_name=screen_name)
+            userId = profile["result"]["rest_id"]
+            raw = self.userspost(userId=userId)
+            deep = raw["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"][1]
+            datas = []
+            for entry in deep["entries"]:
+                deeper = entry["content"]["itemContent"]["tweet_results"]["result"]
+                id = deeper["rest_id"]
+                unmention_data = deeper["unmention_data"]
+                views = {
+                    key: value for key, value in deeper["views"].items()
+                    if key != "state"
+                } if "views" in deeper else dict()
+                self.__removeallentites(
+                    keyword="entities",
+                    datas=deeper
                 )
-            ):
-                del deeper["legacy"][key]
-                if key == "created_at":
-                    initially = datetime.strptime(
-                        deeper["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                self.__removeallentites(
+                    keyword="extended_entities",
+                    datas=deeper
+                )
+
+                KEYS_REMOVE = [
+                    "conversation_id_str",
+                    "display_text_range",
+                    "is_quote_status",
+                    "possibly_sensitive",
+                    "possibly_sensitive_editable",
+                    "quoted_status_id_str",
+                    "quoted_status_permalink",
+                    "favorited",
+                    "retweeted",
+                    "user_id_str",
+                    "id_str"
+                ]
+
+                for key in list(
+                    self.__generatekey(
+                        datas=deeper,
+                        keys=KEYS_REMOVE,
+                        keyword="legacy"
                     )
-                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                    deeper["legacy"].update({key: new})
+                ):
+                    del deeper["legacy"][key]
 
-            legacy = deeper["legacy"]
+                for key, value in deeper["legacy"].items():
+                    if key == "created_at":
+                        initially = datetime.strptime(
+                            value, "%a %b %d %H:%M:%S +0000 %Y"
+                        )
+                        new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                        deeper["legacy"].update({key: new})
 
-            data = {
-                "id": id,
-                "unmention_data": unmention_data,
-                "views": views,
-                "legacy": legacy
+                legacy = deeper["legacy"]
+
+                data = {
+                    "id": id,
+                    "unmention_data": unmention_data,
+                    "views": views,
+                    "legacy": legacy
+                }
+
+                datas.append(data)
+            result = {
+                "result": datas
             }
-
-            datas.append(data)
-        result = {
-            "result": datas
-        }
-        return result
+            return result
+        except Exception as e:
+            raise Exception(
+                f"Error! message: {e}"
+            )
 
 
 if __name__ == "__main__":
-    sb = X()
+    sb = Users()
