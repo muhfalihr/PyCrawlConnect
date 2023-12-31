@@ -125,31 +125,82 @@ class X:
     def __processmedia(self): ...
 
     def __removeallentites(self, keyword: str, datas: dict):
-        if keyword in datas["legacy"]:
-            for e_media in datas["legacy"][keyword]["media"]\
-                if "media" in datas["legacy"][keyword]\
-                    else datas["legacy"][keyword].update({"media": []}):
-                del e_media["id_str"]
-                del e_media["indices"]
-                del e_media["media_key"]
-                del e_media["ext_media_availability"]
-                del e_media["features"]
-                del e_media["sizes"]
-                del e_media["original_info"]
+        if keyword is not None:
+            if not isinstance(keyword, str):
+                raise TypeError(
+                    "Invalid \"__removeallentites\" parameter, value must be type str, {} passed".format(
+                        type(keyword).__name__)
+                )
+            if isinstance(keyword, str):
+                pass
+        if datas is not None:
+            if not isinstance(datas, dict):
+                raise TypeError(
+                    "Invalid \"__removeallentites\" parameter, value must be type dict, {} passed".format(
+                        type(datas).__name__)
+                )
+            if isinstance(datas, dict):
+                pass
 
-    def __generatekey(self, datas: dict):
-        for key in datas["legacy"]:
-            if key in [
-                "conversation_id_str",
-                "display_text_range",
-                "is_quote_status",
-                "possibly_sensitive",
-                "possibly_sensitive_editable",
-                "quoted_status_id_str",
-                "quoted_status_permalink",
-                "user_id_str",
-                "id_str"
-            ]:
+        KEYS_REMOVE = [
+            "id_str",
+            "indices",
+            "media_key",
+            "ext_media_availability",
+            "features",
+            "sizes",
+            "original_info"
+        ]
+        if keyword in datas["legacy"]:
+            if "media" in datas["legacy"][keyword]:
+                for e_media in datas["legacy"][keyword]["media"]:
+                    for key in list(self.__generatekey(
+                        datas=e_media,
+                        keys=KEYS_REMOVE
+                    )):
+                        del e_media[key]
+                        url = e_media["url"]
+
+                for key, value in datas["legacy"].items():
+                    if key == "full_text":
+                        datas["legacy"].update(
+                            {
+                                key: value.replace(url, "").rstrip()
+                            }
+                        )
+
+    def __generatekey(self, datas: dict, keys: list, keyword: str = None):
+        if datas is not None:
+            if not isinstance(datas, dict):
+                raise TypeError(
+                    "Invalid \"__generatekey\" parameter, value must be type dict, {} passed".format(
+                        type(datas).__name__)
+                )
+            if isinstance(datas, dict):
+                pass
+        if keys is not None:
+            if not isinstance(keys, list):
+                raise TypeError(
+                    "Invalid \"__generatekey\" parameter, value must be type list, {} passed".format(
+                        type(keys).__name__)
+                )
+            if isinstance(keys, list):
+                pass
+        if keyword is not None:
+            if not isinstance(keyword, str):
+                raise TypeError(
+                    "Invalid \"__removeallentites\" parameter, value must be type str, {} passed".format(
+                        type(keyword).__name__)
+                )
+            if isinstance(keyword, str):
+                pass
+
+        if keyword:
+            for key in datas[keyword]:
+                if key in keys:
+                    yield key
+        for key in datas:
+            if key in keys:
                 yield key
 
     def __replacechar(self, text: str, replacement: str):
@@ -194,7 +245,7 @@ class X:
                         type(screen_name).__name__)
                 )
             if isinstance(screen_name, str):
-                screen_name = str(screen_name)
+                pass
         params = {
             "variables": {
                 "screen_name": screen_name,
@@ -255,10 +306,17 @@ class X:
                             )
                         }
                     )
-            # results = json.dumps(result, indent=4)
-            # with open("controller/socialmedia/twitter/profile.json", "w") as file:
-            #     file.write(results)
-            return result
+                if key == "created_at":
+                    initially = datetime.strptime(
+                        result["result"]["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                    )
+                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                    result["result"]["legacy"].update({key: new})
+
+            results = json.dumps(result, indent=4)
+            with open("controller/socialmedia/twitter/profile.json", "w") as file:
+                file.write(results)
+            # return result
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -274,7 +332,7 @@ class X:
                         type(userId).__name__)
                 )
             if isinstance(userId, str):
-                userId = str(userId)
+                pass
         params = {
             "variables": {
                 "userId": userId,
@@ -310,6 +368,7 @@ class X:
         }
         for key in params:
             params.update({key: Utility.convertws(params[key])})
+
         variables = quote(params["variables"])
         features = quote(params["features"])
         url = "https://api.twitter.com/graphql/V1ze5q3ijDS1VeLwLY0m7g/UserTweets?variables={variables}&features={features}".format(
@@ -335,6 +394,9 @@ class X:
             # data = json.dumps(response, indent=4)
             # with open("controller/socialmedia/twitter/userspost.json", "w") as file:
             #     file.write(data)
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
 
     def media(self, screen_name):
         profile = self.profile(screen_name=screen_name)
@@ -349,7 +411,7 @@ class X:
             views = {
                 key: value for key, value in deeper["views"].items()
                 if key != "state"
-            }
+            } if "views" in deeper else dict()
             self.__removeallentites(
                 keyword="entities",
                 datas=deeper
@@ -358,58 +420,51 @@ class X:
                 keyword="extended_entities",
                 datas=deeper
             )
+
+            KEYS_REMOVE = [
+                "conversation_id_str",
+                "display_text_range",
+                "created_at",
+                "is_quote_status",
+                "possibly_sensitive",
+                "possibly_sensitive_editable",
+                "quoted_status_id_str",
+                "quoted_status_permalink",
+                "favorited",
+                "retweeted",
+                "user_id_str",
+                "id_str"
+            ]
+
             for key in list(
                 self.__generatekey(
-                    datas=deeper
+                    datas=deeper,
+                    keys=KEYS_REMOVE,
+                    keyword="legacy"
                 )
             ):
                 del deeper["legacy"][key]
+                if key == "created_at":
+                    initially = datetime.strptime(
+                        deeper["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                    )
+                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                    deeper["legacy"].update({key: new})
 
             legacy = deeper["legacy"]
-            # if "quoted_status_result" in deeper:
-            #     del deeper["quoted_status_result"]
 
-            # del deeper["__typename"]
-            # del deeper["core"]
-            # del deeper["edit_control"]
-            # del deeper["source"]
-            # del deeper["quick_promote_eligibility"]
+            data = {
+                "id": id,
+                "unmention_data": unmention_data,
+                "views": views,
+                "legacy": legacy
+            }
 
-            # del deeper["legacy"]["id_str"]
-            # del deeper["legacy"]["conversation_id_str"]
-            # del deeper["legacy"]["display_text_range"]
-
-            # try:
-            #     em = deeper["legacy"]["entities"]["media"] if "media" in deeper["legacy"]["entities"] else None
-            #     eem = deeper["legacy"]["extended_entities"]["media"] if "media" in deeper["legacy"]["extended_entities"] else None
-            # except KeyError:
-            #     em = None
-            #     eem = None
-
-            # if (em or eem) is not None:
-            #     for entities_media, extended_entities_media in zip(em, eem):
-            #         del entities_media["id_str"]
-            #         del entities_media["indices"]
-            #         del entities_media["media_key"]
-            #         del entities_media["ext_media_availability"]
-            #         del entities_media["features"]
-            #         del entities_media["sizes"]
-            #         del entities_media["original_info"]
-
-            #         del extended_entities_media["id_str"]
-            #         del extended_entities_media["indices"]
-            #         del extended_entities_media["media_key"]
-            #         del extended_entities_media["ext_media_availability"]
-            #         del extended_entities_media["features"]
-            #         del extended_entities_media["sizes"]
-            #         del extended_entities_media["original_info"]
-            return legacy
-
-        #     datas.append(deeper)
-
-        # result = {
-        #     "result": datas
-        # }
+            datas.append(data)
+        result = {
+            "result": datas
+        }
+        return result
         # dumps = json.dumps(result, indent=4)
         # with open("controller/socialmedia/twitter/media.json", "w") as file:
         #     file.write(dumps)
@@ -417,6 +472,4 @@ class X:
 
 if __name__ == "__main__":
     sb = X()
-    # cek = sb.profile(username="gibran_tweet")
-    # cek = sb.media("gibran_tweet")
-    # print(cek)
+    cek = sb.profile(screen_name="AM_EllaJKT48")
