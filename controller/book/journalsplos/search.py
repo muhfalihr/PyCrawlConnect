@@ -21,7 +21,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -33,7 +33,7 @@ class Search:
             )
         return self.jar
 
-    def set_pubdate(self, start, end):
+    def __set_pubdate(self, start, end):
         if start != None:
             start = start if "-" in start\
                 else datetime.strptime(start, "%Y/%m/%d").strftime("%Y-%m-%d")\
@@ -59,10 +59,10 @@ class Search:
     def search(self, keyword=None, category="everything", filterstartdate=None, filterenddate=None, sizepage=15, sortby="RELEVANCE", page=1, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "%20")
         sortby = f"&sortOrder={sortby}"
-        start, end = self.set_pubdate(filterstartdate, filterenddate)
+        start, end = self.__set_pubdate(filterstartdate, filterenddate)
         pub_date_filter = f"filterStartDate={start}&filterEndDate={end}&" if filterstartdate or filterenddate != None or filterstartdate != None else ""
 
         match category:

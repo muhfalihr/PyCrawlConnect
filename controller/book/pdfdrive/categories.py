@@ -26,7 +26,7 @@ class Categories:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -38,14 +38,10 @@ class Categories:
             )
         return self.jar
 
-    def unique(self, inList):
-        unique_list = []
-        [unique_list.append(x)
-         for x in inList if x not in unique_list if x != ""]
-        return unique_list
-
     def categories(self, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
+        if cookies:
+            cookies = self.__set_cookies(cookies=cookies)
         url = "https://www.pdfdrive.com/"
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(

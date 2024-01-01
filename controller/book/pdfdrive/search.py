@@ -26,7 +26,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -41,7 +41,7 @@ class Search:
     def search(self, keyword: str = None, page: int = 1, pub_year: str = "Pub. Year", pagecount: str = "Any Pages", lang: str = None, em: bool = False, iscategory=False, idcat=None, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         pub_year = "" if pub_year == "Pub. Year"\
             else re.search(r'\d+', pub_year).group()
         keyword = keyword.replace(" ", "+") if keyword != None else ""

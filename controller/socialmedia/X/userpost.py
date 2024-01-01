@@ -32,7 +32,7 @@ class Users:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -43,8 +43,6 @@ class Users:
                 path=cookie["path"],
             )
         return self.jar
-
-    def __processmedia(self): ...
 
     def __removeallentites(self, keyword: str, datas: dict):
         if keyword is not None:
@@ -159,7 +157,7 @@ class Users:
     def profile(self, screen_name: str, proxy=None, cookies=None, **kwargs) -> dict:
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         if screen_name is not None:
             if not isinstance(screen_name, str):
                 raise TypeError(
@@ -242,7 +240,7 @@ class Users:
     def userspost(self, userId: str, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         if userId is not None:
             if not isinstance(userId, str):
                 raise TypeError(

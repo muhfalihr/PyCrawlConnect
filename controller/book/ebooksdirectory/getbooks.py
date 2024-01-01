@@ -26,7 +26,7 @@ class GetBooks:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -41,7 +41,7 @@ class GetBooks:
     def getbooks(self, option, id=None, page=1, cookies=None, proxy=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
         self.headers["User-Agent"] = user_agent

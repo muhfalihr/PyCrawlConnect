@@ -26,7 +26,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -40,6 +40,8 @@ class Search:
 
     def search(self, keyword: str, limit: int, page: int, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
+        if cookies:
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "+")
         limit = int(limit)
         page = int(page)
@@ -124,6 +126,8 @@ class DepartementEnum(Search):
 
     def departementenum(self, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
+        if cookies:
+            cookies = self.__set_cookies(cookies=cookies)
         url = "https://en.wikibooks.org/wiki/Main_Page"
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
@@ -169,6 +173,8 @@ class FeaturedBooks(Search):
 
     def featuredbooks(self, departement, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
+        if cookies:
+            cookies = self.__set_cookies(cookies=cookies)
         url = f"https://en.wikibooks.org/wiki/Department:{departement}"
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(

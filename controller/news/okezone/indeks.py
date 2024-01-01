@@ -29,7 +29,7 @@ class Index:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -41,7 +41,7 @@ class Index:
             )
         return self.jar
 
-    def rmBracket(self, teks: str):
+    def __rmBracket(self, teks: str):
         endpoint = teks.rfind(".")
         endbracket = teks.rfind(")", endpoint)
         if endbracket > endpoint:
@@ -53,7 +53,7 @@ class Index:
     def newsIndex(self, site, page, year, month, date, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
         if site != "index":
@@ -271,7 +271,7 @@ class Index:
                         .text()
                     )
                     body_article = (
-                        self.rmBracket(body_article)
+                        self.__rmBracket(body_article)
                         .replace(rmtext1, "")
                         .replace(rmtext2, "")
                         .replace(" BACA JUGA:", "")

@@ -26,7 +26,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -41,7 +41,7 @@ class Search:
     def search(self, keyword="", page=1, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "%20")
         url = f"https://www.bookrix.com/search;keywords:{keyword},searchoption:books,page:{page}.html"
         self.headers["user-agent"] = user_agent
@@ -74,10 +74,12 @@ class Search:
             for div in data:
                 bookID = self.parser.pyq_parser(div, "img").attr("src")
                 bookID = re.sub(".*p=", "", bookID)
-                title = self.parser.pyq_parser(div, '[class="item-title"]').text()
+                title = self.parser.pyq_parser(
+                    div, '[class="item-title"]').text()
                 links = self.parser.pyq_parser(div, "a").attr("href")
                 links = f"https://www.bookrix.com{links}"
-                author = self.parser.pyq_parser(div, '[class="item-author"]').text()
+                author = self.parser.pyq_parser(
+                    div, '[class="item-author"]').text()
                 genre = self.parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(1)'
                 ).text()
@@ -103,7 +105,8 @@ class Search:
                 for k in self.parser.pyq_parser(div, '[class="item-keywords"] a'):
                     key = self.parser.pyq_parser(k, "a").text()
                     keywords.append(key)
-                price = self.parser.pyq_parser(div, '[class="item-price"]').text()
+                price = self.parser.pyq_parser(
+                    div, '[class="item-price"]').text()
                 data = {
                     "bookID": bookID,
                     "title": title,

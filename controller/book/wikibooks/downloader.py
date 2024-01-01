@@ -24,7 +24,7 @@ class Downloader:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -39,7 +39,7 @@ class Downloader:
     def download(self, id, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         url = f'https://en.wikibooks.org/api/rest_v1/page/pdf/{id}'
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(

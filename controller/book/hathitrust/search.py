@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class Search:
@@ -26,7 +27,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -38,7 +39,7 @@ class Search:
             )
         return self.jar
 
-    def emptyarray(self, data: dict, grid: str):
+    def __emptyarray(self, data: dict, grid: str):
         field = data.get(grid, [])
         field = [field] if isinstance(field, str) else field
         return field
@@ -46,7 +47,7 @@ class Search:
     def search(self, keyword, category: str, page: int, pagesize: int, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "+")
         page = int(page)
         page = page+1 if page == 0\
@@ -115,6 +116,7 @@ class Search:
                         html,
                         'article[class="record d-flex flex-column gap-3 p-3 mb-3 mt-3"]'
                     )
+                    id = Utility.hashmd5(url=link)
                     for raw in data:
                         title = (
                             self.parser.pyq_parser(
@@ -169,20 +171,22 @@ class Search:
                                 if '\n' in value else value
                         isbn = [
                             re.sub(r'\D', '', i)
-                            for i in self.emptyarray(
+                            for i in self.__emptyarray(
                                 data_grid,
                                 "ISBN"
                             )
                         ]
                         data = {
+                            "id": id,
+                            "url": url,
                             "title": title,
                             "description": {
                                 "main_author": data_grid.get('Main Author', ""),
-                                "related_names": self.emptyarray(data_grid, "Related Names"),
+                                "related_names": self.__emptyarray(data_grid, "Related Names"),
                                 "languages": data_grid.get('Language', ""),
                                 "published": data_grid.get('Published', ""),
                                 "edition": data_grid.get('Edition', ""),
-                                "subjects": self.emptyarray(data_grid, "Subjects"),
+                                "subjects": self.__emptyarray(data_grid, "Subjects"),
                                 "summary": data_grid.get('Summary', ""),
                                 "note": data_grid.get('Note', ""),
                                 "isbn": isbn,

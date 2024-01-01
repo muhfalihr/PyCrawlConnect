@@ -26,7 +26,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -38,7 +38,7 @@ class Search:
             )
         return self.jar
 
-    def set_sort_by(self, sort_by):
+    def __set_sort_by(self, sort_by):
         if sort_by == "title":
             sort_by = "field_title"
         elif sort_by == "author":
@@ -53,9 +53,9 @@ class Search:
     def search(self, keyword, sort_by, page, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "%20")
-        sort_by = self.set_sort_by(sort_by)
+        sort_by = self.__set_sort_by(sort_by)
         url = f"https://manybooks.net/search-book?search={keyword}&sort_by={sort_by}&page={page}"
         self.headers["user-agent"] = user_agent
         r = self.session.request(
@@ -98,7 +98,8 @@ class Search:
                 status_code = r.status_code
                 data = r.content
                 if status_code == 200:
-                    title = self.parser.pyq_parser(data, 'div[itemprop="name"]').text()
+                    title = self.parser.pyq_parser(
+                        data, 'div[itemprop="name"]').text()
                     description = self.parser.pyq_parser(
                         data,
                         '[class="field field--name-field-description field--type-string-long field--label-hidden field--item"]',
@@ -108,7 +109,8 @@ class Search:
                         data,
                         '[class="field field--name-field-author-er field--type-entity-reference field--label-hidden field--items"] [class="field--item"]',
                     ):
-                        author = self.parser.pyq_parser(a, '[itemprop="author"]').text()
+                        author = self.parser.pyq_parser(
+                            a, '[itemprop="author"]').text()
                         authors.append(author)
                     authors = list(filter(None, authors))
                     downloads = (
@@ -132,7 +134,8 @@ class Search:
                         '[class="field field--name-field-isbn field--type-string field--label-hidden field--item"]',
                     ).text()
                     count_review = (
-                        self.parser.pyq_parser(data, '[class="mb-rate-description"]')
+                        self.parser.pyq_parser(
+                            data, '[class="mb-rate-description"]')
                         .eq(0)
                         .text()
                     )
@@ -209,7 +212,8 @@ class Search:
                     }
                     datas.append(data)
                 else:
-                    raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+                    raise Exception(
+                        f"Error! status code {r.status_code} : {r.reason}")
 
             result = {
                 "result": datas,

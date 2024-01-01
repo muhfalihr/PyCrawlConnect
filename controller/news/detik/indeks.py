@@ -29,7 +29,7 @@ class Index:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -44,7 +44,7 @@ class Index:
     def newsIndex(self, site, page, year, month, date, daerah=None, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
         if site != "daerah":

@@ -26,7 +26,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -38,7 +38,7 @@ class Search:
             )
         return self.jar
 
-    def set_search_by(self, search_by):
+    def __set_search_by(self, search_by):
         search_by = search_by[0] + "." if search_by != "all" else ""
         return search_by
 
@@ -47,9 +47,9 @@ class Search:
     ):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "+")
-        search_by = self.set_search_by(search_by)
+        search_by = self.__set_search_by(search_by)
         url = f"https://www.gutenberg.org/ebooks/search/?query={search_by}{keyword}&submit_search=Search&start_index={start_index}"
         self.headers["user-agent"] = user_agent
         r = self.session.request(
@@ -71,7 +71,8 @@ class Search:
                     html,
                     'li[class="statusline"] [title="Go to the next page of results."]',
                 ).attr("href")
-                next_start_index = re.sub(".*start_index=", "", next_start_index)
+                next_start_index = re.sub(
+                    ".*start_index=", "", next_start_index)
             except:
                 next_start_index = ""
 
@@ -92,7 +93,8 @@ class Search:
                 status_code = r.status_code
                 data = r.content
                 if status_code == 200:
-                    data_detail = self.parser.pyq_parser(data, '[class="bibrec"]')
+                    data_detail = self.parser.pyq_parser(
+                        data, '[class="bibrec"]')
                     res = {}
                     list_same_header = []
                     for tr in self.parser.pyq_parser(data_detail, "tr"):
@@ -134,7 +136,8 @@ class Search:
                     res.pop("")
                     datas.append(res)
                 else:
-                    raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+                    raise Exception(
+                        f"Error! status code {r.status_code} : {r.reason}")
 
             result = {
                 "result": datas,

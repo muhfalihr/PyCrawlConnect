@@ -24,7 +24,7 @@ class Downloader:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -39,7 +39,7 @@ class Downloader:
     def download(self, url, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
 
         self.headers["user-agent"] = user_agent
         r = self.session.request(
@@ -57,7 +57,8 @@ class Downloader:
             # Mendapatkan nama file dari header "content-disposition" jika ada
             content_disposition = r.headers.get("content-disposition")
             if content_disposition:
-                filename_match = re.search(r'filename="([^"]+)"', content_disposition)
+                filename_match = re.search(
+                    r'filename="([^"]+)"', content_disposition)
                 if filename_match:
                     filename = unquote(filename_match.group(1))
                 else:

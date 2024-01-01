@@ -34,7 +34,7 @@ class SearchFilter:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -46,7 +46,7 @@ class SearchFilter:
             )
         return self.jar
 
-    def regex(self, text, field):
+    def __regex(self, text, field):
         try:
             match field:
                 case "title":
@@ -92,7 +92,7 @@ class SearchFilter:
     def search(self, keyword: str, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "+")
         url = f"https://tv2.lk21official.co/search.php?s={keyword}"
         self.headers["User-Agent"] = user_agent
@@ -151,7 +151,7 @@ class SearchFilter:
                 if status_code == 200:
                     html = content.decode("utf-8")
                     id = Utility.hashmd5(url=link)
-                    title = self.regex(
+                    title = self.__regex(
                         self.parser.pyq_parser(
                             html,
                             'div[class="container"] h1'
@@ -171,7 +171,7 @@ class SearchFilter:
                         .text()
                         .replace("\n", " ")
                     )
-                    site = self.regex(
+                    site = self.__regex(
                         self.parser.pyq_parser(
                             html,
                             'div[class="download-movie"] a'
@@ -327,7 +327,7 @@ class SearchFilter:
     def filter(self, orderby, order, page, type=None, genre1=None, genre2=None, country=None, year=None, hdonly=0, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         type = type if type else 0
         genre1 = genre1 if genre1 else 0
         genre2 = genre2 if genre2 else 0
@@ -376,7 +376,7 @@ class SearchFilter:
                 )
                 if filteritem_link:
                     if type == "2":
-                        filteritem_link = "https://tv8.nontondrama.click/" + self.regex(
+                        filteritem_link = "https://tv8.nontondrama.click/" + self.__regex(
                             text=filteritem_link,
                             field='path'
                         )
@@ -385,7 +385,7 @@ class SearchFilter:
                         links.append(filteritem_link)
 
                 links = Utility.makeunique(links)
-            maxpage = self.regex(
+            maxpage = self.__regex(
                 self.parser.pyq_parser(
                     html,
                     'div[class="col-lg-9 col-sm-8"] header[class="archive-header"] h3'
@@ -420,7 +420,7 @@ class SearchFilter:
                             .text()
                         )
                     else:
-                        title = self.regex(
+                        title = self.__regex(
                             self.parser.pyq_parser(
                                 html,
                                 'div[class="container"] h1'

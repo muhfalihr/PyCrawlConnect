@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class Search:
@@ -26,7 +27,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -38,7 +39,7 @@ class Search:
             )
         return self.jar
 
-    def handle(self, field: str, s: str):
+    def __handle(self, field: str, s: str):
         try:
             var = [i for i in field.rstrip(';').split(s) if i != ""]
         except Exception:
@@ -46,7 +47,7 @@ class Search:
         finally:
             return var
 
-    def detailbook(self, parent, numdb, indexdb):
+    def __detailbook(self, parent, numdb, indexdb):
         detail = self.parser.pyq_parser(
             parent.eq(numdb),
             'td'
@@ -56,7 +57,7 @@ class Search:
     def search(self, keyword: str, page: int, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         keyword = keyword.replace(' ', '%20')
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
@@ -115,6 +116,7 @@ class Search:
                 status_code = resp.status_code
                 if status_code == 200:
                     html_detail = content.decode("utf-8")
+                    id = Utility.hashmd5(url=url)
                     data_detail = self.parser.pyq_parser(
                         html_detail,
                         'div[class="row"]'
@@ -147,10 +149,10 @@ class Search:
                     details = []
                     for i in range(len(values)):
                         detail = {
-                            "number": self.detailbook(value, i, 0),
-                            "registration_number": self.detailbook(value, i, 1),
-                            "location": self.detailbook(value, i, 2),
-                            "status": self.detailbook(value, i, 3)
+                            "number": self.__detailbook(value, i, 0),
+                            "registration_number": self.__detailbook(value, i, 1),
+                            "location": self.__detailbook(value, i, 2),
+                            "status": self.__detailbook(value, i, 3)
                         }
                         details.append(detail)
 
@@ -162,14 +164,16 @@ class Search:
                         li,
                         'span[class="right bold"]'
                     )
-                    authors = (self.handle(span.eq(0).text(), ', '))
+                    authors = (self.__handle(span.eq(0).text(), ', '))
                     issue = (span.eq(1).text())
                     isbn = (span.eq(2).text())
                     callnumber = (span.eq(3).text())
                     language = (span.eq(4).text())
-                    subjects = (self.handle(span.eq(5).text(), '; '))
+                    subjects = (self.__handle(span.eq(5).text(), '; '))
 
                     data = {
+                        "id": id,
+                        "url": url,
                         "title": title,
                         "thumbnail_link": str(img).replace('perpustakaan', 'library'),
                         "authors": authors,

@@ -26,7 +26,7 @@ class AllCategories:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def set_cookies(self, cookies):
+    def __set_cookies(self, cookies):
         for cookie in cookies:
             if cookie["name"] == "msToken":
                 msToken = cookie["value"]
@@ -41,7 +41,7 @@ class AllCategories:
     def allcategories(self, cookies=None, proxy=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+            cookies = self.__set_cookies(cookies=cookies)
         url = 'http://www.e-booksdirectory.com'
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
