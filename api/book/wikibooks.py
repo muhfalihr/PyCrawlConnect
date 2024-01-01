@@ -55,7 +55,6 @@ class BooksSearch(Resource):
             page = request.values.get("page")
             search = Search()
             data = search.search(keyword=keyword, page=page, limit=pagesize)
-            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

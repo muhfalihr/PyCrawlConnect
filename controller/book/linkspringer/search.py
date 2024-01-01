@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class Search:
@@ -41,7 +42,7 @@ class Search:
     def search(self, keyword, page, pubdate, sortby, contenttype, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+            cookies = self.set_cookies(cookies=cookies)
         keyword = keyword.replace(" ", "+")
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
@@ -98,10 +99,10 @@ class Search:
                 nextpage = ""
             match contenttype:
                 case "Book" | "ConferenceProceedings" | "ReferenceWork":
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -112,6 +113,7 @@ class Search:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode("utf-8")
+                            id = Utility.hashmd5(url=link)
                             title = (
                                 self.parser.pyq_parser(
                                     html,
@@ -351,7 +353,10 @@ class Search:
                                 "Edition Number", "")
                             numpage = biblo_info.get("Number of Pages", "")
                             topics = biblo_info.get("Topics", [])
+
                             data = {
+                                "id": id,
+                                "url": link,
                                 "title": title,
                                 "sub_title": subtitle,
                                 "thumbnail_link": img,
@@ -397,10 +402,10 @@ class Search:
                         else:
                             continue
                 case "Chapter" | "Protocol":
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -411,6 +416,7 @@ class Search:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode("utf-8")
+                            id = Utility.hashmd5(url=link)
                             title = (
                                 self.parser.pyq_parser(
                                     html,
@@ -577,6 +583,8 @@ class Search:
                                 keywords.append(kw)
 
                             data = {
+                                "id": id,
+                                "url": link,
                                 "title": title,
                                 "authors": authors,
                                 "published_date": pub_date,
@@ -600,10 +608,10 @@ class Search:
                             raise Exception(
                                 f"Error! status code {resp.status_code} : {resp.reason}")
                 case "Article":
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -614,6 +622,7 @@ class Search:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode("utf-8")
+                            id = Utility.hashmd5(url=link)
                             title = (
                                 self.parser.pyq_parser(
                                     html,
@@ -760,6 +769,8 @@ class Search:
                                 )
                                 keywords.append(kw)
                             data = {
+                                "id": id,
+                                "url": link,
                                 "title": title,
                                 "authors": authors,
                                 "journal_title": journal_title,
@@ -786,10 +797,10 @@ class Search:
                             raise Exception(
                                 f"Error! status code {resp.status_code} : {resp.reason}")
                 case "ConferencePaper" | "ReferenceWorkEntry":
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -800,6 +811,7 @@ class Search:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode("utf-8")
+                            id = Utility.hashmd5(url=link)
                             title = (
                                 self.parser.pyq_parser(
                                     html,
@@ -956,6 +968,8 @@ class Search:
                                     ebook_packages.append(ep)
 
                             data = {
+                                "id": id,
+                                "url": link,
                                 "title": title,
                                 "authors": authors,
                                 "accesses": accesses,
@@ -1026,7 +1040,7 @@ class BooksSeries(Search):
     def books(self, id, page, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+            cookies = self.set_cookies(cookies=cookies)
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
         url = f"https://www.springer.com/series/{id}/books?page={page}"
@@ -1074,10 +1088,10 @@ class BooksSeries(Search):
             else:
                 maxpage = int(pagelist[-1].replace(',', ''))
                 nextpage = page+1 if page < maxpage else ""
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
@@ -1088,6 +1102,7 @@ class BooksSeries(Search):
                 content = resp.content
                 if status_code == 200:
                     html = content.decode("utf-8")
+                    data_id = Utility.hashmd5(url=link)
                     title = (
                         self.parser.pyq_parser(
                             html,
@@ -1327,7 +1342,10 @@ class BooksSeries(Search):
                         "Edition Number", "")
                     numpage = biblo_info.get("Number of Pages", "")
                     topics = biblo_info.get("Topics", [])
+                    
                     data = {
+                        "id": data_id,
+                        "url": link,
                         "title": title,
                         "sub_title": subtitle,
                         "thumbnail_link": img,
@@ -1381,6 +1399,7 @@ class BooksSeries(Search):
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
+
 
 
 if __name__ == "__main__":

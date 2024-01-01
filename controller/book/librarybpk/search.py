@@ -61,7 +61,6 @@ class Search:
         keyword = keyword.replace(' ', '%20')
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
-
         url = f"https://library.bpk.go.id/search/keyword/{keyword}/{page}"
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
@@ -102,10 +101,10 @@ class Search:
                     'div[class="col-lg-10"] a'
                 ).attr('href')
                 links.append(f"https://library.bpk.go.id{link}")
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
@@ -116,7 +115,7 @@ class Search:
                 status_code = resp.status_code
                 if status_code == 200:
                     html_detail = content.decode("utf-8")
-                    id = Utility.hashmd5(url=url)
+                    id = Utility.hashmd5(url=link)
                     data_detail = self.parser.pyq_parser(
                         html_detail,
                         'div[class="row"]'
@@ -173,7 +172,7 @@ class Search:
 
                     data = {
                         "id": id,
-                        "url": url,
+                        "url": link,
                         "title": title,
                         "thumbnail_link": str(img).replace('perpustakaan', 'library'),
                         "authors": authors,

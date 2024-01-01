@@ -89,6 +89,7 @@ class TheGetBooks(Resource):
             page = request.values.get("page")
             gb = GetBooks()
             data = gb.getbooks(option=option, id=category, page=page)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

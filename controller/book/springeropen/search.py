@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class Search:
@@ -95,10 +96,10 @@ class Search:
                     f"https:{link}") if "https:" not in link\
                     else links.append(link)
 
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
@@ -109,6 +110,7 @@ class Search:
                 content = resp.content
                 if status_code == 200:
                     html = content.decode('utf-8')
+                    id = Utility.hashmd5(url=link)
                     divclass = "app" if "link.springer.com" in url else "c"
                     downloadsite = (
                         self.parser.pyq_parser(
@@ -235,6 +237,8 @@ class Search:
                         else canda.eq(2).text()
 
                     data = {
+                        "id": id,
+                        "url": link,
                         "title": title,
                         "authors": authors,
                         "journal_url": journalurl,

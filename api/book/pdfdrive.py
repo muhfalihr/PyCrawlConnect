@@ -73,6 +73,7 @@ class BookSearch(Resource):
             search = Search()
             data = search.search(
                 keyword=keyword, pagecount=pagecount, em=em, page=page, pub_year=pubyear)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )
@@ -163,6 +164,7 @@ class BooksByCat(Resource):
             page = request.values.get("page")
             bookcat = Search()
             data = bookcat.search(iscategory=True, idcat=id, page=page)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

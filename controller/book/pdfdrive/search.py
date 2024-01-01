@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class Search:
@@ -41,7 +42,7 @@ class Search:
     def search(self, keyword: str = None, page: int = 1, pub_year: str = "Pub. Year", pagecount: str = "Any Pages", lang: str = None, em: bool = False, iscategory=False, idcat=None, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+            cookies = self.set_cookies(cookies=cookies)
         pub_year = "" if pub_year == "Pub. Year"\
             else re.search(r'\d+', pub_year).group()
         keyword = keyword.replace(" ", "+") if keyword != None else ""
@@ -103,10 +104,10 @@ class Search:
                 links.append(f"https://www.pdfdrive.com{link}")
             links = list(
                 filter(lambda x: x != "https://www.pdfdrive.comNone", links))
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
@@ -117,6 +118,7 @@ class Search:
                 content = resp.content
                 if status_code == 200:
                     html = content.decode('utf-8')
+                    id = Utility.hashmd5(url=link)
                     div = self.parser.pyq_parser(
                         html,
                         'div[class="ebook-main"]'
@@ -173,6 +175,8 @@ class Search:
                     )
                     downloadsite = f"https://www.pdfdrive.com{downloadsite}#top"
                     data = {
+                        "id": id,
+                        "url": link,
                         "title": title,
                         "thumbnail_link": img,
                         "author": author,

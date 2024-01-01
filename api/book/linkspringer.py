@@ -77,7 +77,8 @@ class BooksSearch(Resource):
                 contenttype=contenttype,
                 pubdate=date_published
             )
-            pk.produser(datas=data)
+            if contenttype != "BookSeries":
+                pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )
@@ -126,6 +127,7 @@ class BookSeries(Resource):
             page = request.values.get("page")
             bs = BooksSeries()
             data = bs.books(id=id, page=page)
+            pk.produser(datas=data)
             return (
                 success_response(data, message="success"), 200
             )

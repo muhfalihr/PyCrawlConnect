@@ -39,7 +39,7 @@ class All:
             )
         return self.jar
 
-    def datarow(self, parent: bytes, eq: int):
+    def __datarow(self, parent: bytes, eq: int):
         field = (
             self.parser.pyq_parser(
                 parent,
@@ -51,7 +51,11 @@ class All:
         field.find("strong").remove()
         return field.text().lstrip(': ').replace('n/a', '').replace('N/A', '')
 
-    def crawldatas(self, url, page, proxy, cookies, **kwargs):
+    def __allbooks(self, url, page, proxy=None, cookies=None, **kwargs):
+        user_agent = self.fake.user_agent()
+        if cookies:
+            cookies = self.__set_cookies(cookies=cookies)
+        self.headers["User-Agent"] = user_agent
         resp = self.session.request(
             method="GET",
             url=url,
@@ -97,10 +101,10 @@ class All:
             maxpage = int(pagelist[-2].replace(',', ''))\
                 if pagelist != [] else 1
             nextpage = page+1 if page < maxpage else ""
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     headers=self.headers,
                     timeout=60,
                     proxies=proxy,
@@ -111,6 +115,7 @@ class All:
                 content = resp.content
                 if status_code == 200:
                     html = content.decode('utf-8')
+                    id = Utility.hashmd5(url=link)
                     details_book = self.parser.pyq_parser(
                         html,
                         'div[class="col-lg-8 col-md-8"]'
@@ -166,15 +171,15 @@ class All:
                             .text()
                         )
                         tags.append(tag)
-                    pubdate = self.datarow(details_book, 0)
-                    isbn10 = self.datarow(details_book, 1)
-                    isbn13 = self.datarow(details_book, 2)
-                    paperback = self.datarow(details_book, 3)
-                    views = self.datarow(details_book, 4)
-                    type = self.datarow(details_book, 5)
-                    publisher = self.datarow(details_book, 6)
-                    license = self.datarow(details_book, 7)
-                    post_time = self.datarow(details_book, 8)
+                    pubdate = self.__datarow(details_book, 0)
+                    isbn10 = self.__datarow(details_book, 1)
+                    isbn13 = self.__datarow(details_book, 2)
+                    paperback = self.__datarow(details_book, 3)
+                    views = self.__datarow(details_book, 4)
+                    type = self.__datarow(details_book, 5)
+                    publisher = self.__datarow(details_book, 6)
+                    license = self.__datarow(details_book, 7)
+                    post_time = self.__datarow(details_book, 8)
                     excerpts = (
                         self.parser.pyq_parser(
                             details_book,
@@ -190,6 +195,8 @@ class All:
                         .attr('href')
                     )
                     data = {
+                        "id": id,
+                        "url": link,
                         "title": title,
                         "thumbnail_link": img,
                         "authors": authors,
@@ -220,7 +227,7 @@ class All:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def all(self, option=None, page=1, datascrawl=False, idlink=None, proxy=None, cookies=None, **kwargs):
+    def all(self, option=None, page=1, allbook=False, idlink=None, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
             cookies = self.__set_cookies(cookies=cookies)
@@ -230,7 +237,7 @@ class All:
         match option:
             case "topics":
                 url = f"http://www.freetechbooks.com/topics?page={page}"
-                result = self.crawldatas(
+                result = self.__allbooks(
                     url=url,
                     page=page,
                     proxy=proxy,
@@ -345,7 +352,7 @@ class All:
                             .attr('href')
                         )
                         links.append(link)
-                    links = Utility.makeunique(links)
+                    links = self.unique(links)
                     table = self.parser.pyq_parser(
                         div,
                         'table[class="table table-hover table-responsive"] tbody tr'
@@ -588,10 +595,10 @@ class All:
                     raise Exception(
                         f"Error! status code {resp.status_code} : {resp.reason}")
 
-        match datascrawl:
+        match allbook:
             case True:
                 url = f"http://www.freetechbooks.com/{idlink}.html?page={page}"
-                result = self.crawldatas(
+                result = self.__allbooks(
                     url=url,
                     page=page,
                     proxy=proxy,

@@ -98,10 +98,10 @@ class Search:
                 link = f"https://catalog.hathitrust.org/{link}"
                 links.append(link)
 
-            for url in links:
+            for link in links:
                 resp = self.session.request(
                     method="GET",
-                    url=url,
+                    url=link,
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
@@ -178,7 +178,7 @@ class Search:
                         ]
                         data = {
                             "id": id,
-                            "url": url,
+                            "url": link,
                             "title": title,
                             "description": {
                                 "main_author": data_grid.get('Main Author', ""),

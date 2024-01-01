@@ -10,6 +10,7 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
 class GetBooks:
@@ -41,7 +42,7 @@ class GetBooks:
     def getbooks(self, option, id=None, page=1, cookies=None, proxy=None, **kwargs):
         user_agent = self.fake.user_agent()
         if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+            cookies = self.set_cookies(cookies=cookies)
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
         self.headers["User-Agent"] = user_agent
@@ -77,10 +78,10 @@ class GetBooks:
                         )
                         links.append(f"http://www.e-booksdirectory.com/{a}")
 
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -91,6 +92,7 @@ class GetBooks:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode('utf-8')
+                            data_id = Utility.hashmd5(url=link)
                             detail_book = self.parser.pyq_parser(
                                 html,
                                 'article[itemtype="http://schema.org/Book"] p'
@@ -180,6 +182,8 @@ class GetBooks:
                             originsite = originsite if originsite != None else originsite_h if originsite_h != None else ""
 
                             data = {
+                                "id": data_id,
+                                "url": link,
                                 "title": title,
                                 "thumbnail_url": img,
                                 "author": author,
@@ -282,10 +286,10 @@ class GetBooks:
                             raise Exception(
                                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-                    for url in links:
+                    for link in links:
                         resp = self.session.request(
                             method="GET",
-                            url=url,
+                            url=link,
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
@@ -296,6 +300,7 @@ class GetBooks:
                         content = resp.content
                         if status_code == 200:
                             html = content.decode('utf-8')
+                            data_id = Utility.hashmd5(url=link)
                             detail_book = self.parser.pyq_parser(
                                 html,
                                 'article[itemtype="http://schema.org/Book"] p'
@@ -386,6 +391,8 @@ class GetBooks:
                                 else originsite_h if originsite_h != None else ""
 
                             data = {
+                                "id": data_id,
+                                "url": link,
                                 "title": title,
                                 "thumbnail_url": img,
                                 "author": author,
