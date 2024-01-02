@@ -15,89 +15,11 @@ from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode, quote
 from faker import Faker
 from datetime import datetime
-# from helper.html_parser import HtmlParser
-# from helper.utility import Utility
-
-from bs4 import BeautifulSoup
-from pyquery import PyQuery as pq
+from helper.html_parser import HtmlParser
+from helper.utility import Utility
 
 
-class HtmlParser:
-    def __init__(self):
-        pass
-
-    def bs4_parser(self, html, selector):
-        result = None
-        try:
-            html = BeautifulSoup(html, "lxml")
-            result = html.select(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-    def pyq_parser(self, html, selector):
-        result = None
-        try:
-            html = pq(html)
-            result = html(selector)
-        except Exception as e:
-            print(e)
-        finally:
-            return result
-
-
-class Utility:
-    """
-    Encapsulates a collection of utility functions for various tasks.
-    """
-    @staticmethod
-    def hashmd5(url: str):
-        """Calculates the MD5 hash of the given URL.
-        Returns the hashed value as a hexadecimal string.
-        """
-        md5hash = hashlib.md5()
-        md5hash.update(url.encode('utf-8'))
-        hashed = md5hash.hexdigest()
-        return hashed
-
-    @staticmethod
-    def timezone(date_time, format):
-        """Converts a datetime string to the corresponding time zone offset for Asia/Jakarta.
-        Takes the datetime string, a format string specifying its format, and returns the offset as a string like "+0700".
-        """
-        tz = pytz.timezone("Asia/Jakarta")
-        date = datetime.strptime(date_time, format)
-        timezone = tz.localize(date).strftime("%z")
-        return timezone
-
-    @staticmethod
-    def UniqClear(text):
-        """Normalizes and removes non-ASCII characters from the given text.
-        Returns the ASCII-only version of the text.
-        """
-        normalized = unicodedata.normalize('NFKD', text)
-        ascii_text = normalized.encode('ascii', 'ignore').decode('ascii')
-        return ascii_text
-
-    @staticmethod
-    def makeunique(datas: list):
-        """
-        Removes duplicate elements from a list while preserving order.
-        Returns a new list containing only unique elements.
-        """
-        unique_list = []
-        [unique_list.append(x) for x in datas if x not in unique_list]
-        return unique_list
-
-    @staticmethod
-    def convertws(data: dict):
-        dumps = json.dumps(data)
-        without_whitespace = re.sub(r'\s+', '', dumps)
-        return without_whitespace
-
-
-class Search:
+class API:
     def __init__(self, cookie: str = None):
         self.cookie = cookie
         self.session = Session()
@@ -142,15 +64,12 @@ class Search:
             result = {
                 "result": data["data"]
             }
-            # dumps = json.dumps(data, indent=4)
-            # with open("controller/socialmedia/instagram/search.json", "w") as file:
-            #     file.write(dumps)
-            return data
+            return result
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def userpost(self, username: str, max_id: str = None, proxy=None):
+    def __userpost(self, username: str, max_id: str = None, proxy=None):
         user_agent = self.fake.user_agent()
         max_id = f"&max_id={max_id}" if max_id else ""
         url = f"https://www.instagram.com/api/v1/feed/user/{username}/username/?count=33{max_id}"
@@ -175,7 +94,7 @@ class Search:
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
     def media(self, username: str, max_id: str = None):
-        userpost = self.userpost(
+        userpost = self.__userpost(
             username=username, max_id=max_id
         )
         datas = []
@@ -286,9 +205,12 @@ class Search:
         }
         return result
 
-    def comments(self, pk: str, proxy=None):
+    def comments(self, pk: str, min_id: str = None, proxy=None):
         user_agent = self.fake.user_agent()
-        url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&permalink_enabled=false"
+        if min_id:
+            url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&min_id={quote(min_id)}&sort_order=popular"
+        else:
+            url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&permalink_enabled=false"
         self.headers["User-Agent"] = user_agent
         self.headers["X-Asbd-Id"] = "129477"
         self.headers["X-Csrftoken"] = self.__Csrftoken()
@@ -334,10 +256,13 @@ class Search:
                         for key in KEYS_COMMENT_USER:
                             if key in comment["user"]:
                                 del comment["user"][key]
-            # return data
-            dumps = json.dumps(data, indent=4)
-            with open("controller/socialmedia/instagram/search.json", "w") as file:
-                file.write(dumps)
+            result = {
+                "result": {
+                    "comments": data["comments"],
+                    "next_min_id": data.get("next_min_id", "")
+                }
+            }
+            return result
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
@@ -345,9 +270,4 @@ class Search:
 
 if __name__ == "__main__":
     cookies = "ig_did=3ABCC936-AF74-4336-A4EB-7DA5FFEDA4A3; datr=gSJ5ZVzOZePX4p1BJ0SxrjNN; mid=ZXkihwAEAAFoAqJ6keaV4txQaUuz; ig_nrcb=1; shbid=\"5680\05433964907779\0541735354007:01f78d55aadf11b317d96761a907671b471332d788b998a0a27bef6a3877871f3a26f7ee\"; shbts=\"1703818007\05433964907779\0541735354007:01f7443ecb3f3d9851fcac85e8c737956542507f73840303bff7d5422651291f701fb261\"; csrftoken=UUsIB4w3gqGzHFDPYpJZn49i5vo6Dno1; ds_user_id=63948446931; rur=\"NHA\05463948446931\0541735722517:01f755f224ff5c3c15e07c9836afe974ee5f28e93f742bb5289338368f2501d3291e4412\"; sessionid=63948446931%3AMOcQTY6Lz8PHgd%3A18%3AAYeJpLEp5-QeC0dZ8n-3MA2RGzfk7bInblKDSvV9Vw"
-    sb = Search(cookie=cookies)
-    cek = sb.comments(pk="3259056995382519982")
-    # print(cek)
-    # dumps = json.dumps(result, indent=4)
-    # with open("controller/socialmedia/instagram/search.json", "w") as file:
-    #     file.write(dumps)
+    sb = API(cookie=cookies)

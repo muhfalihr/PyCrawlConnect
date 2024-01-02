@@ -6,6 +6,7 @@ from gevent.pywsgi import WSGIServer
 from library.logger import setup_logging
 
 from api.socialmedia.x import x
+from api.socialmedia.instagram import instagram
 
 setup_logging()
 logger = logging.getLogger(__name__)
