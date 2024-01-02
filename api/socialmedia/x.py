@@ -16,7 +16,7 @@ x = Blueprint("x", __name__)
 ns_api = api.namespace("x", description="Social Media")
 
 
-@ns_api.route("/profile-user", methods=["GET"])
+@ns_api.route("/user-profile", methods=["GET"])
 class UsersX(Resource):
     @api.doc(
         responses=flask_response("get"),
@@ -59,7 +59,7 @@ class UsersX(Resource):
                 )
 
 
-@ns_api.route("/media-user", methods=["GET"])
+@ns_api.route("/user-media", methods=["GET"])
 class MediaUsersX(Resource):
     @api.doc(
         responses=flask_response("get"),
@@ -72,6 +72,57 @@ class MediaUsersX(Resource):
             screen_name = request.values.get("screen_name")
             profile = Users()
             data = profile.media(screen_name=screen_name)
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
+
+
+@ns_api.route("/users-recomendation", methods=["GET"])
+class XUserRecomendation(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "userId": {
+                "description": "ID of the Twitter user.\nTaken from the rest_id key value contained in the user-profile onpoint results",
+                "required": True
+            },
+            "limit": {
+                "description": "number of recommended users.\nNOTE : Max 40.",
+                "required": True
+            }
+        },
+    )
+    def get(self):
+        try:
+            userId = request.values.get("userId")
+            limit = request.values.get("limit")
+            profile = Users()
+            data = profile.recomendation(userId=userId, limit=limit)
             return (
                 success_response(data=data, message=f"success"),
                 200,
