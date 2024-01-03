@@ -1,10 +1,6 @@
-from typing import Any
 import unicodedata
-import pytz
-import hashlib
 import re
 import json
-import random
 import string
 import time
 
@@ -12,7 +8,7 @@ from pyquery import PyQuery
 from requests.sessions import Session
 from requests.cookies import RequestsCookieJar
 from requests.exceptions import Timeout, ReadTimeout
-from urllib.parse import urljoin, urlencode, quote
+from urllib.parse import quote, unquote
 from faker import Faker
 from datetime import datetime
 from helper.html_parser import HtmlParser
@@ -208,7 +204,10 @@ class API:
     def comments(self, pk: str, min_id: str = None, proxy=None):
         user_agent = self.fake.user_agent()
         if min_id:
-            url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&min_id={quote(min_id)}&sort_order=popular"
+            min_id = min_id.replace("\\", "")
+            min_id = unquote(min_id).replace(" ", "")
+            min_id = quote(min_id)
+            url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&min_id={min_id}&sort_order=popular"
         else:
             url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&permalink_enabled=false"
         self.headers["User-Agent"] = user_agent

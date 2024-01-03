@@ -66,7 +66,7 @@ class MediaUsersIG(Resource):
         responses=flask_response("get"),
         params={
             "username": {"description": "username\nExample: gibran_rakabuming", "required": True},
-            "max_id": {"description": "max_id\nTaken from the results of this onpoint, the bottom part.\nExample: {\"cached_comments_cursor\": \"18055356079507540\", \"bifilter_token\": \"KEUBFABYACAAGAAQABAACAAIAAgACAAIAP_9OH_-_X37mo7_C3dH4P06jbY3H5slylf1___v86-H____YvyxGfBBCgGCBgAA\"}"}
+            "max_id": {"description": "max_id\nTaken from key next_max_id from this result.\nExample: 3038059354248345987_51296391646"}
         },
     )
     def get(self):
@@ -115,7 +115,8 @@ class UserComments(Resource):
                 "required": True
             },
             "min_id": {
-                "description": "min_id.\nTaken from the results of this onpoint, the bottom part."
+                "description": "min_id.\nTaken from the results of this onpoint, the bottom part.\nExample : {\"cached_comments_cursor\": \"17988012536591264\", \"bifilter_token\": \"KDMBDABYACAAEAAIAAgACAD_fXr6_3_995q__en__7BXfbv-___f_K-X____-mS5RHi0EQQA\"}",
+                "type": str
             }
         },
     )
