@@ -14,10 +14,76 @@ from . import pk
 
 x = Blueprint("x", __name__)
 ns_api = api.namespace("x", description="Social Media")
+# Required
+cookie = ''
+
+
+@ns_api.route("/search", methods=["GET"])
+class SearchTimeline(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "rawquery": {
+                "description": "raw query",
+                "required": True
+            },
+            "product": {
+                "description": "product",
+                "default": "People",
+                "required": True
+            },
+            "count": {
+                "description": "count",
+                "default": 20,
+                "type": int
+            },
+            "cursor": {
+                "description": "cursor\nTaken from the cursor_value key contained in the bottom data.\n*NOTE:To retrieve further data."
+            }
+        },
+    )
+    def get(self):
+        try:
+            rawquery = request.values.get("rawquery")
+            product = request.values.get("product")
+            count = request.values.get("count")
+            cursor = request.values.get("cursor")
+            profile = Users(cookie=cookie)
+            data = profile.search(
+                rawquery=rawquery, product=product, count=count, cursor=cursor
+            )
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
 
 
 @ns_api.route("/user-profile", methods=["GET"])
-class UsersX(Resource):
+class UserByScreenName(Resource):
     @api.doc(
         responses=flask_response("get"),
         params={
@@ -27,7 +93,7 @@ class UsersX(Resource):
     def get(self):
         try:
             screen_name = request.values.get("screen_name")
-            profile = Users()
+            profile = Users(cookie=cookie)
             data = profile.profile(screen_name=screen_name)
             return (
                 success_response(data=data, message=f"success"),
@@ -59,19 +125,78 @@ class UsersX(Resource):
                 )
 
 
-@ns_api.route("/user-media", methods=["GET"])
-class MediaUsersX(Resource):
+@ns_api.route("/user-posts", methods=["GET"])
+class UserTweets(Resource):
     @api.doc(
         responses=flask_response("get"),
         params={
-            "screen_name": {"description": "screen name\nExample: gibran_tweet", "required": True},
+            "userId": {
+                "description": "userId\n*NOTE:Taken from key rest_id from onpoint \"user-profile\" or \"search\".",
+                "required": True
+            },
         },
     )
     def get(self):
         try:
-            screen_name = request.values.get("screen_name")
-            profile = Users()
-            data = profile.media(screen_name=screen_name)
+            userId = request.values.get("userId")
+            profile = Users(cookie=cookie)
+            data = profile.posts(userId=userId)
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
+
+
+@ns_api.route("/user-media", methods=["GET"])
+class UserMedia(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "userId": {
+                "description": "userId\n*NOTE:Taken from key rest_id from onpoint \"user-profile\" or \"search\".",
+                "required": True
+            },
+            "count": {
+                "description": "count",
+                "default": 20,
+                "type": int
+            },
+            "cursor": {
+                "description": "cursor\nTaken from the cursor_value key contained in the bottom data.\n*NOTE:To retrieve further data."
+            }
+        },
+    )
+    def get(self):
+        try:
+            userId = request.values.get("userId")
+            count = request.values.get("count")
+            cursor = request.values.get("cursor")
+            profile = Users(cookie=cookie)
+            data = profile.media(userId=userId, count=count, cursor=cursor)
             return (
                 success_response(data=data, message=f"success"),
                 200,
@@ -103,7 +228,7 @@ class MediaUsersX(Resource):
 
 
 @ns_api.route("/users-recomendation", methods=["GET"])
-class XUserRecomendation(Resource):
+class UserRecomendation(Resource):
     @api.doc(
         responses=flask_response("get"),
         params={
@@ -121,7 +246,7 @@ class XUserRecomendation(Resource):
         try:
             userId = request.values.get("userId")
             limit = request.values.get("limit")
-            profile = Users()
+            profile = Users(cookie=cookie)
             data = profile.recomendation(userId=userId, limit=limit)
             return (
                 success_response(data=data, message=f"success"),
