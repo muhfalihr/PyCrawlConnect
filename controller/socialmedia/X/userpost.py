@@ -907,5 +907,5 @@ class Users:
 
 
 if __name__ == "__main__":
-    cookie = "guest_id=v1%3A170184047900712218; guest_id_marketing=v1%3A170184047900712218; guest_id_ads=v1%3A170184047900712218; _ga=GA1.2.650290662.1703348293; _twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCAlUeJeMAToMY3NyZl9p%250AZCIlYjhlZWUyMTdlMjZlNjFlYWIwN2NhY2VmMTNhYmRmZWI6B2lkIiU2MmE1%250ANmNmMTVhNTlhMzUyYzdjODBlYzE3YWNhYTgxMw%253D%253D--3e0bbf7304e81fda76d0fa8c2ac8b5e9c9691cc0; gt=1742744794646839441; external_referer=padhuUp37zjgzgv1mFWxJ12Ozwit7owX|0|8e8t2xd8A2w%3D; _gid=GA1.2.1658326490.1704337717; g_state={\"i_l\":1,\"i_p\":1704346522523}; kdt=fQmLwPxPvLBZbMnmHiUZ17051iFrOqXkK0LWo3Jo; auth_token=41c8f84738f585d5bbc25b453defa46ffae857fe; ct0=4d39a41182dfe9649891db164583bfa8593639ce8e70cba17a1b15e6cb9fe653c7f90577fa5c38fb86d44db87458ce20bc3ac454475affb84b7ba98e7a90c6c23dcd497f83e6add5d72dae5400cd63c8; lang=en; twid=u%3D1669681181607198720; att=1-TZWzrvGpyNQAJLCDKD4snvHExieanPcy44ctctzq; personalization_id=\"v1_vQXukFC64M3fECdfkVil2Q==\""
+    cookie = ""
     sb = Users()
