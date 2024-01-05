@@ -8,7 +8,7 @@ import string
 import time
 
 from requests.sessions import Session
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from faker import Faker
 from datetime import datetime
 from helper.utility import Utility
@@ -30,6 +30,34 @@ class Users:
         if cookie is not None:
             self.headers["Cookie"] = cookie
 
+    def __guest_token(self):
+        user_agent = self.fake.user_agent()
+        url = "https://api.twitter.com/1.1/guest/activate.json"
+        self.headers["User-Agent"] = user_agent
+        resp = self.session.post(
+            url=url,
+            headers=self.headers,
+            timeout=60
+        )
+        status_code = resp.status_code
+        content = resp.json()["guest_token"]
+        if status_code == 200:
+            self.headers.update({
+                "X-Guest-Token": content
+            })
+            return self.headers["X-Guest-Token"]
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def __Csrftoken(self):
+        pattern = re.compile(r'ct0=([a-zA-Z0-9_-]+)')
+        matches = pattern.search(self.cookie)
+        if matches:
+            csrftoken = matches.group(1)
+            return csrftoken
+        return None
+
     def __removeallentites(self, keyword: str, datas: dict) -> dict:
         if not isinstance(datas, dict):
             raise TypeError("Invalid parameter for '__removeallentites'. Expected dict, got {}".format(
@@ -47,26 +75,78 @@ class Users:
             "ext_media_availability",
             "features",
             "sizes",
-            "original_info"
+            "original_info",
+            "additional_media_info"
         ]
         if keyword in datas["legacy"]:
-            if "media" in datas["legacy"][keyword]:
-                for e_media in datas["legacy"][keyword]["media"]:
-                    for key in self.__generatekey(
-                        datas=e_media,
-                        keys=KEYS_REMOVE
-                    ):
-                        del e_media[key]
-                        url = e_media["url"]
+            KEY_CHECK = ["hashtags", "media", "symbols",
+                         "timestamps", "urls", "user_mentions"]
+            for kc in KEY_CHECK:
+                if kc in datas["legacy"][keyword]:
+                    if "hashtags" in datas["legacy"][keyword] and datas["legacy"][keyword]["hashtags"]:
+                        hashtags = []
+                        try:
+                            for e_hashtag in datas["legacy"][keyword]["hashtags"]:
+                                hashtags.append(e_hashtag["text"])
+                            datas["legacy"][keyword].update(
+                                {"hashtags": hashtags})
+                        except TypeError:
+                            pass
 
-                for key, value in datas["legacy"].items():
-                    if key == "full_text":
-                        datas["legacy"].update(
-                            {
-                                key: value.replace(url, "").rstrip()
-                            }
-                        )
-                return
+                    if "media" in datas["legacy"][keyword] and datas["legacy"][keyword]["media"]:
+                        for e_media in datas["legacy"][keyword]["media"]:
+                            for key in self.__generatekey(
+                                datas=e_media,
+                                keys=KEYS_REMOVE
+                            ):
+                                del e_media[key]
+                                if "video_info" in e_media:
+                                    if "aspect_ratio" in e_media["video_info"]:
+                                        del e_media["video_info"]["aspect_ratio"]
+                                url = e_media["url"]
+
+                            for key, value in datas["legacy"].items():
+                                if key == "full_text":
+                                    datas["legacy"].update(
+                                        {
+                                            key: value.replace(
+                                                url, "").rstrip()
+                                        }
+                                    )
+
+                    if "symbols" in datas["legacy"][keyword] and datas["legacy"][keyword]["symbols"]:
+                        for e_symbol in datas["legacy"][keyword]["symbols"]:
+                            for key in self.__generatekey(
+                                datas=e_symbol,
+                                keys=KEYS_REMOVE
+                            ):
+                                del e_symbol[key]
+
+                    if "timestamps" in datas["legacy"][keyword] and datas["legacy"][keyword]["timestamps"]:
+                        for e_tt in datas["legacy"][keyword]["timestamps"]:
+                            for key in self.__generatekey(
+                                datas=e_tt,
+                                keys=KEYS_REMOVE
+                            ):
+                                del e_tt[key]
+
+                    if "urls" in datas["legacy"][keyword] and datas["legacy"][keyword]["urls"]:
+                        for e_url in datas["legacy"][keyword]["urls"]:
+                            for key in self.__generatekey(
+                                datas=e_url,
+                                keys=KEYS_REMOVE
+                            ):
+                                del e_url[key]
+
+                    if "user_mentions" in datas["legacy"][keyword] and datas["legacy"][keyword]["user_mentions"]:
+                        for e_um in datas["legacy"][keyword]["user_mentions"]:
+                            for key in self.__generatekey(
+                                datas=e_um,
+                                keys=[kr for kr in KEYS_REMOVE if kr != "id_str"]
+                            ):
+                                del e_um[key]
+                    return
+
         return
 
     def __generatekey(self, datas: dict, keys: list):
@@ -100,35 +180,7 @@ class Users:
             return result
         return text
 
-    def __guest_token(self):
-        user_agent = self.fake.user_agent()
-        url = "https://api.twitter.com/1.1/guest/activate.json"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.post(
-            url=url,
-            headers=self.headers,
-            timeout=60
-        )
-        status_code = resp.status_code
-        content = resp.json()["guest_token"]
-        if status_code == 200:
-            self.headers.update({
-                "X-Guest-Token": content
-            })
-            return self.headers["X-Guest-Token"]
-        else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
-
-    def __Csrftoken(self):
-        pattern = re.compile(r'ct0=([a-zA-Z0-9_-]+)')
-        matches = pattern.search(self.cookie)
-        if matches:
-            csrftoken = matches.group(1)
-            return csrftoken
-        return None
-
-    def __processretweeted(self, data: dict):
+    def __processretweeted(self, data: dict) -> dict:
         """
         Process retweeted tweet data and return a cleaned dictionary.
         """
@@ -136,63 +188,62 @@ class Users:
             raise TypeError("Invalid parameter for '__processretweeted'. Expected dict, got {}".format(
                 type(data).__name__)
             )
-        try:
-            id = data["rest_id"]
-            unmention_data = data["unmention_data"]
 
-            views = {
-                key: value for key, value in data["views"].items()
-                if key != "state"
-            } if "views" in data else dict()
+        id = data["rest_id"] if "rest_id" in data else ""
+        unmention_data = data["unmention_data"] if "unmention_data" in data else ""
 
-            self.__removeallentites(
-                keyword="entities",
-                datas=data
-            )
-            self.__removeallentites(
-                keyword="extended_entities",
-                datas=data
-            )
+        views = {
+            key: value for key, value in data["views"].items()
+            if key != "state"
+        } if "views" in data else dict()
 
-            KEYS_REMOVE = [
-                "conversation_id_str",
-                "display_text_range",
-                "is_quote_status",
-                "possibly_sensitive",
-                "possibly_sensitive_editable",
-                "quoted_status_id_str",
-                "quoted_status_permalink",
-                "favorited",
-                "retweeted",
-                "user_id_str",
-                "id_str"
-            ]
+        self.__removeallentites(
+            keyword="entities",
+            datas=data
+        )
+        self.__removeallentites(
+            keyword="extended_entities",
+            datas=data
+        )
 
-            for key in self.__generatekey(
-                datas=data["legacy"],
-                keys=KEYS_REMOVE
-            ):
-                del data["legacy"][key]
+        KEYS_REMOVE = [
+            "conversation_id_str",
+            "display_text_range",
+            "is_quote_status",
+            "possibly_sensitive",
+            "possibly_sensitive_editable",
+            "quoted_status_id_str",
+            "quoted_status_permalink",
+            "favorited",
+            "retweeted",
+            "user_id_str",
+            "id_str",
+            "place"
+        ]
 
-            for key, value in data["legacy"].items():
-                if key == "created_at":
-                    initially = datetime.strptime(
-                        value, "%a %b %d %H:%M:%S +0000 %Y"
-                    )
-                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                    data["legacy"].update({key: new})
+        for key in self.__generatekey(
+            datas=data["legacy"],
+            keys=KEYS_REMOVE
+        ):
+            del data["legacy"][key]
 
-            legacy = data["legacy"]
+        for key, value in data["legacy"].items():
+            if key == "created_at":
+                initially = datetime.strptime(
+                    value, "%a %b %d %H:%M:%S +0000 %Y"
+                )
+                new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                data["legacy"].update({key: new})
 
-            result = {
-                "id": id,
-                "unmention_data": unmention_data,
-                "views": views,
-                "legacy": legacy
-            }
-            return result
-        except Exception as e:
-            raise f"Error! Message {e}"
+        legacy = data["legacy"]
+
+        result = {
+            "id": id,
+            "unmention_data": unmention_data,
+            "views": views,
+            "legacy": legacy
+        }
+        return result
 
     def __processmedia(self, entry: dict = None) -> dict:
         """
@@ -202,16 +253,23 @@ class Users:
             raise TypeError("Invalid parameter for '__processmedia'. Expected dict, got {}".format(
                 type(entry).__name__)
             )
-        try:
+
+        if "content" in entry:
             deeper = entry["content"]["itemContent"]["tweet_results"]["result"]
-            id = deeper["rest_id"]
-            unmention_data = deeper["unmention_data"]
+        else:
+            if "rest_id" in entry:
+                deeper = entry
+            else:
+                deeper = entry["tweet"]
 
-            views = {
-                key: value for key, value in deeper["views"].items()
-                if key != "state"
-            } if "views" in deeper else dict()
+        id = deeper["rest_id"] if "rest_id" in deeper else ""
+        views = {
+            key: value for key, value in deeper["views"].items()
+            if key != "state"
+        } if "views" in deeper else dict()
 
+        legacy = {}
+        if "legacy" in deeper:
             self.__removeallentites(
                 keyword="entities",
                 datas=deeper
@@ -232,7 +290,8 @@ class Users:
                 "favorited",
                 "retweeted",
                 "user_id_str",
-                "id_str"
+                "id_str",
+                "place"
             ]
 
             for key in self.__generatekey(
@@ -248,8 +307,10 @@ class Users:
                     initially = datetime.strptime(
                         value, "%a %b %d %H:%M:%S +0000 %Y"
                     )
-                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                    legacy.update({key: new})
+                    new = initially.strftime(
+                        "%Y-%m-%dT%H:%M:%S")
+                    legacy.update(
+                        {key: new})
 
             if "retweeted_status_result" in legacy:
                 retweeted_result: dict = legacy["retweeted_status_result"]["result"]
@@ -257,17 +318,14 @@ class Users:
                 retweeted_result.clear()
                 legacy["retweeted_status_result"]["result"].update(rw)
 
-            data = {
-                "id": id,
-                "unmention_data": unmention_data,
-                "views": views,
-                "legacy": legacy
-            }
-            return data
-        except Exception as e:
-            raise f"Error! Message {e}"
+        data = {
+            "id": id,
+            "views": views,
+            "legacy": legacy
+        }
+        return data
 
-    def search(self, rawquery: str, product: str, count: int = 20, cursor: str = None, proxy=None, **kwargs):
+    def search(self, rawquery: str, product: str, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
         """Function to search for the intended user from the given rawquery parameter value using the obtained Twitter API.
 
         Arguments :
@@ -278,7 +336,9 @@ class Users:
           - proxy
           - **kwargs
         """
-        if not isinstance(rawquery, str):
+        if isinstance(rawquery, str):
+            rawquery = quote(rawquery)
+        elif not isinstance(rawquery, str):
             raise TypeError("Invalid parameter for 'search'. Expected str, got {}".format(
                 type(rawquery).__name__)
             )
@@ -300,16 +360,16 @@ class Users:
         user_agent = self.fake.user_agent()
         params = {
             "variables": {
-                "rawQuery": rawquery,
+                "rawQuery": f"{rawquery}",
                 "count": count,
-                "cursor": cursor,
+                "cursor": f"{cursor}",
                 "querySource": "typed_query",
-                "product": product
+                "product": f"{product}"
             } if cursor else {
-                "rawQuery": rawquery,
+                "rawQuery": f"{rawquery}",
                 "count": count,
                 "querySource": "typed_query",
-                "product": product
+                "product": f"{product}"
             },
             "features": {
                 "responsive_web_graphql_exclude_directive_enabled": True,
@@ -337,7 +397,18 @@ class Users:
         }
         for key in params:
             params.update({key: Utility.convertws(params[key])})
-
+            if key == "variables":
+                pattern = re.compile(r'"rawQuery":"([^"]+)"')
+                matches = pattern.search(params["variables"])
+                if matches:
+                    rq_value = matches.group(1)
+                    params.update(
+                        {
+                            "variables": params["variables"].replace(
+                                rq_value, unquote(rq_value)
+                            )
+                        }
+                    )
         variables = quote(params["variables"])
         features = quote(params["features"])
         url = "https://twitter.com/i/api/graphql/Aj1nGkALq99Xg3XI0OZBtw/SearchTimeline?variables={variables}&features={features}".format(
@@ -345,7 +416,6 @@ class Users:
             features=features
         )
         self.headers["User-Agent"] = user_agent
-        self.headers["X-Csrf-Token"] = self.__Csrftoken()
         if self.cookie is None:
             self.headers["X-Guest-Token"] = self.__guest_token()
         else:
@@ -353,6 +423,7 @@ class Users:
         resp = self.session.request(
             method="GET",
             url=url,
+            params=params,
             timeout=60,
             proxies=proxy,
             headers=self.headers,
@@ -365,63 +436,115 @@ class Users:
             data = json.loads(response)
             intructions = data["data"]["search_by_raw_query"]["search_timeline"]["timeline"]["instructions"]
             datas = []
-            for index in intructions:
-                if index["type"] == "TimelineAddEntries":
-                    for entry in index["entries"]:
-                        if "itemContent" in entry["content"]:
-                            user_results = entry["content"]["itemContent"]["user_results"]["result"]
+            cursor_value = ""
+            for index, value in enumerate(intructions):
+                if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
+                    deep = intructions[index]
 
-                            KEYS_RESULT_REMOVE = [
-                                "affiliates_highlighted_label",
-                                "has_graduated_access",
-                                "profile_image_shape"
-                            ]
-                            for key in self.__generatekey(
-                                datas=user_results,
-                                keys=KEYS_RESULT_REMOVE
-                            ):
-                                del user_results[key]
+                    for entry in deep["entries"]:
+                        match product:
+                            case "People":
+                                if "itemContent" in entry["content"]:
+                                    user_results = entry["content"]["itemContent"]["user_results"]["result"]
 
-                            KEYS_LEGACY_REMOVE = [
-                                "can_dm",
-                                "can_media_tag",
-                                "fast_followers_count",
-                                "has_custom_timelines",
-                                "is_translator",
-                                "possibly_sensitive",
-                                "translator_type",
-                                "want_retweets",
-                                "withheld_in_countries"
-                            ]
-                            for key in self.__generatekey(
-                                datas=user_results["legacy"],
-                                keys=KEYS_LEGACY_REMOVE
-                            ):
-                                del user_results["legacy"][key]
+                                    KEYS_RESULT_REMOVE = [
+                                        "affiliates_highlighted_label",
+                                        "has_graduated_access",
+                                        "profile_image_shape"
+                                    ]
+                                    for key in self.__generatekey(
+                                        datas=user_results,
+                                        keys=KEYS_RESULT_REMOVE
+                                    ):
+                                        del user_results[key]
 
-                            for key, value in user_results["legacy"].items():
-                                if key == "profile_image_url_https":
-                                    user_results["legacy"].update(
-                                        {
-                                            key: self.__replacechar(
-                                                value,
-                                                "400x400"
+                                    KEYS_LEGACY_REMOVE = [
+                                        "can_dm",
+                                        "can_media_tag",
+                                        "fast_followers_count",
+                                        "has_custom_timelines",
+                                        "is_translator",
+                                        "possibly_sensitive",
+                                        "translator_type",
+                                        "want_retweets",
+                                        "withheld_in_countries"
+                                    ]
+                                    for key in self.__generatekey(
+                                        datas=user_results["legacy"],
+                                        keys=KEYS_LEGACY_REMOVE
+                                    ):
+                                        del user_results["legacy"][key]
+
+                                    for key, value in user_results["legacy"].items():
+                                        if key == "profile_image_url_https":
+                                            user_results["legacy"].update(
+                                                {
+                                                    key: self.__replacechar(
+                                                        value,
+                                                        "400x400"
+                                                    )
+                                                }
                                             )
-                                        }
-                                    )
-                                if key == "created_at":
-                                    initially = datetime.strptime(
-                                        user_results["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
-                                    )
-                                    new = initially.strftime(
-                                        "%Y-%m-%dT%H:%M:%S")
-                                    user_results["legacy"].update(
-                                        {key: new})
-                        if entry["content"].get("cursorType", "") == "Bottom":
-                            value = entry["content"].get("value", "")
-                        datas.append(user_results)
+                                        if key == "created_at":
+                                            initially = datetime.strptime(
+                                                user_results["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                                            )
+                                            new = initially.strftime(
+                                                "%Y-%m-%dT%H:%M:%S")
+                                            user_results["legacy"].update(
+                                                {key: new})
+                                if entry["content"].get("cursorType", "") == "Bottom":
+                                    cursor_value += entry["content"].get(
+                                        "value", "")
+                                datas.append(user_results)
 
-            cursor_value = value
+                            case "Media":
+                                for key_content in entry["content"]:
+                                    if "items" in key_content:
+                                        for item in entry["content"]["items"]:
+                                            if "item" in item:
+                                                if "itemContent" in item["item"]:
+                                                    deeper = item["item"]["itemContent"]["tweet_results"]["result"]
+                                                    tweet_results = self.__processmedia(
+                                                        entry=deeper
+                                                    )
+                                                    datas.append(
+                                                        tweet_results
+                                                    )
+                                    if entry["content"].get("cursorType", "") == "Bottom":
+                                        cursor_value += entry["content"].get(
+                                            "value", ""
+                                        )
+
+                            case "Top" | "Latest":
+                                if "itemContent" in entry["content"]:
+                                    deeper = entry["content"]["itemContent"]["tweet_results"]["result"]
+                                    tweet_results = self.__processmedia(
+                                        entry=deeper)
+                                    datas.append(tweet_results)
+                                if entry["content"].get("cursorType", "") == "Bottom":
+                                    cursor_value += entry["content"].get(
+                                        "value", ""
+                                    )
+                if isinstance(value, dict) and value["type"] == "TimelineAddToModule":
+                    deep = intructions[index]
+
+                    for entry in deep["moduleItems"]:
+                        if "item" in entry:
+                            deeper = entry["item"]["itemContent"]["tweet_results"]["result"]
+                            tweet_results = self.__processmedia(
+                                entry=deeper)
+                            datas.append(tweet_results)
+
+                if isinstance(value, dict) and value["type"] == "TimelineReplaceEntry":
+                    deep = intructions[index]
+
+                    entry = deep["entry"]
+                    if not cursor_value:
+                        if entry["content"].get("cursorType", "") == "Bottom":
+                            cursor_value += entry["content"].get(
+                                "value", ""
+                            )
 
             result = {
                 "result": datas,
@@ -553,7 +676,7 @@ class Users:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def recomendation(self, userId: str | int = None, limit: str | int = None, proxy=None) -> dict:
+    def recomendation(self, userId: str | int, limit: int = 20, proxy=None) -> dict:
         """Function to retrieve recommended Twitter users according to the userId entered. The result is a data dictionary.
 
         Arguments:
@@ -563,6 +686,12 @@ class Users:
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'profile'. Expected str|int, got {}".format(
                 type(userId).__name__)
+            )
+        if isinstance(limit, str) and limit.isdigit():
+            limit = int(limit)
+        elif not isinstance(limit, int):
+            raise TypeError("Invalid parameter for 'profile'. Expected int, got {}".format(
+                type(limit).__name__)
             )
 
         user_agent = self.fake.user_agent()
@@ -675,7 +804,7 @@ class Users:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def posts(self, userId: int | str = None, proxy=None, **kwargs) -> dict:
+    def posts(self, userId: int | str, proxy=None, **kwargs) -> dict:
         """The function to retrieve details from a user's post uses the userId input obtained when retrieving user profile details.
         The result is a data dictionary.
 
@@ -779,7 +908,7 @@ class Users:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def media(self, userId: str | int = None, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
+    def media(self, userId: str | int, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
         """The function to retrieve details from the user's post uses the screen_name input. The result is a data dictionary.
 
         Arguments:
@@ -807,17 +936,17 @@ class Users:
         user_agent = self.fake.user_agent()
         params = {
             "variables": {
-                "userId": userId,
+                "userId": f"{userId}",
                 "count": count,
+                "cursor": f"{cursor}",
                 "includePromotedContent": False,
                 "withClientEventToken": False,
                 "withBirdwatchNotes": False,
                 "withVoice": True,
                 "withV2Timeline": True
-            } if cursor is None else {
-                "userId": userId,
+            } if cursor else {
+                "userId": f"{userId}",
                 "count": count,
-                "cursor": cursor,
                 "includePromotedContent": False,
                 "withClientEventToken": False,
                 "withBirdwatchNotes": False,
@@ -893,9 +1022,20 @@ class Users:
                                             twr = self.__processretweeted(
                                                 data=tweet_results)
                                             datas.append(twr)
-                                    if "value" in key_content:
-                                        cursor_value += entry[key].get(
-                                            "value", "")
+                                if entry["content"].get("cursorType", "") == "Bottom":
+                                    cursor_value += entry["content"].get(
+                                        "value", "")
+                if isinstance(value, dict) and value["type"] == "TimelineAddToModule":
+                    deep = instructions[index]
+
+                    cursor_value = ""
+                    for entry in deep["moduleItems"]:
+                        if "item" in entry:
+                            deeper = entry["item"]["itemContent"]["tweet_results"]["result"]
+                            tweet_results = self.__processmedia(
+                                entry=deeper)
+                            datas.append(tweet_results)
+
             result = {
                 "result": datas,
                 "cursor_value": cursor_value
