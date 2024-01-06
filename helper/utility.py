@@ -58,3 +58,14 @@ class Utility:
         dumps = json.dumps(data)
         without_whitespace = re.sub(r'\s+', '', dumps)
         return without_whitespace
+
+    @staticmethod
+    def current_funcname():
+        """
+        Calls the name of the function used.
+        """
+        import inspect
+        current_frame = inspect.currentframe()
+        caller_frame = inspect.getouterframes(current_frame)[1]
+        function_name = caller_frame[3]
+        return function_name
