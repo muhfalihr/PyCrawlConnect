@@ -9,7 +9,7 @@ from flask_restx import Resource, fields
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from controller.film.lk21.searchfilter import SearchFilter
+from controller.movie.lk21.searchfilter import SearchFilter
 from helper.html_parser import HtmlParser
 from requests.cookies import RequestsCookieJar
 from . import pk

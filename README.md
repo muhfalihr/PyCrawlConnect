@@ -241,3 +241,7 @@ systemctl start kibana.service
   ```
   GET <index>/_doc/<_id>
   ```
+
+## License
+
+The PyCrawlConnet project is licensed by ![Apache License 2.0](https://github.com/muhfalihr/PyCrawlConnect/blob/master/LICENSE).

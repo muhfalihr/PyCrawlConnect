@@ -108,6 +108,7 @@ class YearEnum(Enum):
     year2021 = 2021
     year2022 = 2022
     year2023 = 2023
+    year2024 = 2024
 
 
 def matching(classenum, formatdatetime):
