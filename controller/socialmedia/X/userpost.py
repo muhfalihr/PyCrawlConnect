@@ -162,6 +162,36 @@ class Users:
                 limit = kwargs["limit"]
                 userId = kwargs["userId"]
 
+            case "tweetdetail":
+                focalTweetId = kwargs["focalTweetId"]
+                controller_data = kwargs["controller_data"]
+                cursor = kwargs["cursor"]
+
+                variables = {
+                    "focalTweetId": f"{focalTweetId}",
+                    "cursor": f"{cursor}",
+                    "referrer": "tweet",
+                    "controller_data": f"{controller_data}",
+                    "with_rux_injections": False,
+                    "includePromotedContent": True,
+                    "withCommunity": True,
+                    "withQuickPromoteEligibilityTweetFields": True,
+                    "withBirdwatchNotes": True,
+                    "withVoice": True,
+                    "withV2Timeline": True
+                } if cursor else {
+                    "focalTweetId": f"{focalTweetId}",
+                    "with_rux_injections": False,
+                    "includePromotedContent": True,
+                    "withCommunity": True,
+                    "withQuickPromoteEligibilityTweetFields": True,
+                    "withBirdwatchNotes": True,
+                    "withVoice": True,
+                    "withV2Timeline": True
+                }
+
+                fieldToggles = {"withArticleRichContentState": False}
+
         params = {
             "variables": variables,
             "features": {
@@ -186,7 +216,7 @@ class Users:
                 "longform_notetweets_inline_media_enabled": True,
                 "responsive_web_media_download_video_enabled": False,
                 "responsive_web_enhance_cards_enabled": False
-            } if func_name in ["search", "post", "media", "replies", "likes"] else {
+            } if func_name in ["search", "posts", "media", "replies", "likes", "tweetdetail"] else {
                 "hidden_profile_likes_enabled": True,
                 "hidden_profile_subscriptions_enabled": True,
                 "responsive_web_graphql_exclude_directive_enabled": True,
@@ -219,7 +249,7 @@ class Users:
             "user_id": f"{userId}",
             "ext": "mediaStats,highlightedLabel,hasNftAvatar,voiceInfo,birdwatchPivot,superFollowMetadata,unmentionInfo,editControl"
         }
-        if func_name == "profile":
+        if func_name in ["profile", "tweetdetail"]:
             params.update(
                 {
                     "fieldToggles": fieldToggles
@@ -350,6 +380,8 @@ class Users:
             return result
         return text
 
+    def __processuserresults(self): ...
+
     def __processretweeted(self, data: dict) -> dict:
         """
         Process retweeted tweet data and return a cleaned dictionary.
@@ -360,12 +392,68 @@ class Users:
             )
 
         id = data["rest_id"] if "rest_id" in data else ""
-        unmention_data = data["unmention_data"] if "unmention_data" in data else ""
 
         views = {
             key: value for key, value in data["views"].items()
             if key != "state"
         } if "views" in data else dict()
+
+        core = {}
+        if "core" in data:
+            core = data["core"]["user_results"]["result"]
+            KEYS_RESULT_REMOVE = [
+                "affiliates_highlighted_label",
+                "has_graduated_access",
+                "profile_image_shape",
+                "smart_blocked_by",
+                "smart_blocking",
+                "legacy_extended_profile",
+                "is_profile_translatable",
+                "has_hidden_likes_on_profile",
+                "has_hidden_subscriptions_on_profile",
+                "verification_info",
+                "highlights_info",
+                "creator_subscriptions_count"
+            ]
+            for key in self.__generatekey(
+                datas=core,
+                keys=KEYS_RESULT_REMOVE
+            ):
+                del core[key]
+
+            KEYS_LEGACY_REMOVE = [
+                "can_dm",
+                "can_media_tag",
+                "fast_followers_count",
+                "has_custom_timelines",
+                "is_translator",
+                "possibly_sensitive",
+                "translator_type",
+                "want_retweets",
+                "withheld_in_countries"
+            ]
+            for key in self.__generatekey(
+                datas=core["legacy"],
+                keys=KEYS_LEGACY_REMOVE
+            ):
+                del core["legacy"][key]
+
+            for key, value in core["legacy"].items():
+                if key == "profile_image_url_https":
+                    core["legacy"].update(
+                        {
+                            key: self.__replacechar(
+                                value,
+                                "400x400"
+                            )
+                        }
+                    )
+                if key == "created_at":
+                    initially = datetime.strptime(
+                        core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                    )
+                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                    core["legacy"].update({key: new})
 
         self.__removeallentites(
             keyword="entities",
@@ -409,8 +497,8 @@ class Users:
 
         result = {
             "id": id,
-            "unmention_data": unmention_data,
             "views": views,
+            "core": core,
             "legacy": legacy
         }
         return result
@@ -437,6 +525,74 @@ class Users:
             key: value for key, value in deeper["views"].items()
             if key != "state"
         } if "views" in deeper else dict()
+
+        core = {}
+        if "core" in deeper:
+            core = deeper["core"]["user_results"]["result"]
+            KEYS_RESULT_REMOVE = [
+                "affiliates_highlighted_label",
+                "has_graduated_access",
+                "profile_image_shape",
+                "smart_blocked_by",
+                "smart_blocking",
+                "legacy_extended_profile",
+                "is_profile_translatable",
+                "has_hidden_likes_on_profile",
+                "has_hidden_subscriptions_on_profile",
+                "verification_info",
+                "highlights_info",
+                "creator_subscriptions_count"
+            ]
+            for key in self.__generatekey(
+                datas=core,
+                keys=KEYS_RESULT_REMOVE
+            ):
+                del core[key]
+
+            KEYS_LEGACY_REMOVE = [
+                "can_dm",
+                "can_media_tag",
+                "created_at",
+                "default_profile",
+                "default_profile_image",
+                "fast_followers_count",
+                "favourites_count",
+                "followers_count",
+                "friends_count",
+                "has_custom_timelines",
+                "is_translator",
+                "listed_count",
+                "media_count",
+                "normal_followers_count",
+                "pinned_tweet_ids_str",
+                "possibly_sensitive",
+                "statuses_count",
+                "translator_type",
+                "want_retweets",
+                "withheld_in_countries"
+            ]
+            for key in self.__generatekey(
+                datas=core["legacy"],
+                keys=KEYS_LEGACY_REMOVE
+            ):
+                del core["legacy"][key]
+
+            for key, value in core["legacy"].items():
+                if key == "profile_image_url_https":
+                    core["legacy"].update(
+                        {
+                            key: self.__replacechar(
+                                value,
+                                "400x400"
+                            )
+                        }
+                    )
+                if key == "created_at":
+                    initially = datetime.strptime(
+                        core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                    )
+                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                    core["legacy"].update({key: new})
 
         legacy = {}
         if "legacy" in deeper:
@@ -497,17 +653,17 @@ class Users:
         data = {
             "id": id,
             "views": views,
+            "core": core,
             "legacy": legacy
         }
         return data
 
-    def __mrlprocess(self, data: dict) -> dict:
-        if not isinstance(data, dict):
-            raise TypeError("Invalid parameter for 'replies'. Expected dict, got {}".format(
-                type(data).__name__)
+    def __coreprocess(self, instructions: list, tweetdetail: bool = False) -> dict:
+        if not isinstance(instructions, list):
+            raise TypeError("Invalid parameter for '__coreprocess'. Expected list, got {}".format(
+                type(instructions).__name__)
             )
 
-        instructions = data["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"]
         datas = []
         for index, value in enumerate(instructions):
             if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
@@ -519,10 +675,11 @@ class Users:
                         if key == "content":
                             for key_content in entry[key]:
                                 if key_content == "itemContent":
-                                    tweet_results = entry[key][key_content]["tweet_results"]["result"]
-                                    twr = self.__processmedia(
-                                        entry=tweet_results)
-                                    datas.append(twr)
+                                    if "tweet_results" in entry[key][key_content]:
+                                        tweet_results = entry[key][key_content]["tweet_results"]["result"]
+                                        twr = self.__processmedia(
+                                            entry=tweet_results)
+                                        datas.append(twr)
                                 if key_content == "items":
                                     for item in entry[key][key_content]:
                                         if "tweet_results" in item["item"]["itemContent"]:
@@ -531,9 +688,16 @@ class Users:
                                                 entry=tweet_results)
                                             datas.append(twr)
 
-                            if entry["content"].get("cursorType", "") == "Bottom":
-                                cursor_value += entry["content"].get(
+                            if tweetdetail:
+                                if "itemContent" in entry[key]:
+                                    if entry[key]["itemContent"].get("cursorType", "") == "Bottom":
+                                        cursor_value += entry[key]["itemContent"].get(
+                                            "value", "")
+
+                            if entry[key].get("cursorType", "") == "Bottom":
+                                cursor_value += entry[key].get(
                                     "value", "")
+
             if isinstance(value, dict) and value["type"] == "TimelineAddToModule":
                 deep = instructions[index]
 
@@ -1133,7 +1297,8 @@ class Users:
         if status_code == 200:
             response = content.decode('utf-8')
             data = json.loads(response)
-            result = self.__mrlprocess(data=data)
+            instructions = data["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"]
+            result = self.__coreprocess(instructions=instructions)
             return result
         else:
             raise Exception(
@@ -1197,7 +1362,8 @@ class Users:
         if status_code == 200:
             response = content.decode('utf-8')
             data = json.loads(response)
-            result = self.__mrlprocess(data=data)
+            instructions = data["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"]
+            result = self.__coreprocess(instructions=instructions)
             return result
         else:
             raise Exception(
@@ -1261,7 +1427,81 @@ class Users:
         if status_code == 200:
             response = content.decode('utf-8')
             data = json.loads(response)
-            result = self.__mrlprocess(data=data)
+            instructions = data["data"]["user"]["result"]["timeline_v2"]["timeline"]["instructions"]
+            result = self.__coreprocess(instructions=instructions)
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def tweetdetail(
+            self,
+            focalTweetId: str | int,
+            controller_data: str = "DAACDAABDAABCgABAAAAAAAAAAAKAAkXK+YwNdoAAAAAAAA=",
+            cursor: str = None,
+            proxy=None,
+            **kwargs
+    ):
+        """Retrieves tweet details from each user's post.
+
+        Arguments :
+          - focalTweetId (Required) Taken from the "rest_id" key value contained in the return results of other functions.
+          - controller_data (Don't change it)
+          - cursor (Optional) The key used to load the next page.
+        """
+        if not isinstance(focalTweetId, (str | int)):
+            raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
+                type(focalTweetId).__name__)
+            )
+        if not isinstance(controller_data, str):
+            raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
+                type(controller_data).__name__)
+            )
+        if cursor is not None:
+            if not isinstance(cursor, str):
+                raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
+                    type(cursor).__name__)
+                )
+        user_agent = self.fake.user_agent()
+        function_name = Utility.current_funcname()
+        params = self.__buildparams(
+            func_name=function_name,
+            focalTweetId=focalTweetId,
+            controller_data=controller_data,
+            cursor=cursor
+        )
+        for key in params:
+            params.update({key: Utility.convertws(params[key])})
+
+        variables = quote(params["variables"])
+        features = quote(params["features"])
+        fieldToggles = quote(params["fieldToggles"])
+        url = "https://twitter.com/i/api/graphql/-H4B_lJDEA-O_7_qWaRiyg/TweetDetail?variables={variables}&features={features}&fieldToggles={fieldToggles}".format(
+            variables=variables,
+            features=features,
+            fieldToggles=fieldToggles
+        )
+        self.headers["User-Agent"] = user_agent
+        if self.cookie is None:
+            self.headers["X-Guest-Token"] = self.__guest_token()
+        else:
+            self.headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.session.request(
+            method="GET",
+            url=url,
+            timeout=60,
+            proxies=proxy,
+            headers=self.headers,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            instructions = data["data"]["threaded_conversation_with_injections_v2"]["instructions"]
+            result = self.__coreprocess(
+                instructions=instructions, tweetdetail=True)
             return result
         else:
             raise Exception(
