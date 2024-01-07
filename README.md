@@ -244,4 +244,4 @@ systemctl start kibana.service
 
 ## License
 
-The PyCrawlConnet project is licensed by ![Apache License 2.0](https://github.com/muhfalihr/PyCrawlConnect/blob/master/LICENSE).
+The PyCrawlConnet project is licensed by [Apache License 2.0](https://github.com/muhfalihr/PyCrawlConnect/blob/master/LICENSE).
