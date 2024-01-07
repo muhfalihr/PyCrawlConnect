@@ -345,9 +345,6 @@ class Users:
                                 keys=[kr for kr in KEYS_REMOVE if kr != "id_str"]
                             ):
                                 del e_um[key]
-                    return
-
-        return
 
     def __generatekey(self, datas: dict, keys: list):
         if not isinstance(datas, dict):
@@ -380,7 +377,80 @@ class Users:
             return result
         return text
 
-    def __processuserresults(self): ...
+    def __processuserresults(self, data: dict):
+        """
+        Process user results data and return a cleaned dictionary.
+        """
+        if not isinstance(data, dict):
+            raise TypeError("Invalid parameter for '__processuserresults'. Expected dict, got {}".format(
+                type(data).__name__)
+            )
+        core = data["core"]["user_results"]["result"]
+        KEYS_RESULT_REMOVE = [
+            "affiliates_highlighted_label",
+            "has_graduated_access",
+            "profile_image_shape",
+            "smart_blocked_by",
+            "smart_blocking",
+            "legacy_extended_profile",
+            "is_profile_translatable",
+            "has_hidden_likes_on_profile",
+            "has_hidden_subscriptions_on_profile",
+            "verification_info",
+            "highlights_info",
+            "creator_subscriptions_count"
+        ]
+        for key in self.__generatekey(
+            datas=core,
+            keys=KEYS_RESULT_REMOVE
+        ):
+            del core[key]
+
+        KEYS_LEGACY_REMOVE = [
+            "can_dm",
+            "can_media_tag",
+            "created_at",
+            "default_profile",
+            "default_profile_image",
+            "fast_followers_count",
+            "favourites_count",
+            "followers_count",
+            "friends_count",
+            "has_custom_timelines",
+            "is_translator",
+            "listed_count",
+            "media_count",
+            "normal_followers_count",
+            "pinned_tweet_ids_str",
+            "possibly_sensitive",
+            "statuses_count",
+            "translator_type",
+            "want_retweets",
+            "withheld_in_countries"
+        ]
+        for key in self.__generatekey(
+            datas=core["legacy"],
+            keys=KEYS_LEGACY_REMOVE
+        ):
+            del core["legacy"][key]
+
+        for key, value in core["legacy"].items():
+            if key == "profile_image_url_https":
+                core["legacy"].update(
+                    {
+                        key: self.__replacechar(
+                            value,
+                            "400x400"
+                        )
+                    }
+                )
+            if key == "created_at":
+                initially = datetime.strptime(
+                    core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                )
+                new = initially.strftime("%Y-%m-%dT%H:%M:%S")
+                core["legacy"].update({key: new})
+        return core
 
     def __processretweeted(self, data: dict) -> dict:
         """
@@ -400,60 +470,7 @@ class Users:
 
         core = {}
         if "core" in data:
-            core = data["core"]["user_results"]["result"]
-            KEYS_RESULT_REMOVE = [
-                "affiliates_highlighted_label",
-                "has_graduated_access",
-                "profile_image_shape",
-                "smart_blocked_by",
-                "smart_blocking",
-                "legacy_extended_profile",
-                "is_profile_translatable",
-                "has_hidden_likes_on_profile",
-                "has_hidden_subscriptions_on_profile",
-                "verification_info",
-                "highlights_info",
-                "creator_subscriptions_count"
-            ]
-            for key in self.__generatekey(
-                datas=core,
-                keys=KEYS_RESULT_REMOVE
-            ):
-                del core[key]
-
-            KEYS_LEGACY_REMOVE = [
-                "can_dm",
-                "can_media_tag",
-                "fast_followers_count",
-                "has_custom_timelines",
-                "is_translator",
-                "possibly_sensitive",
-                "translator_type",
-                "want_retweets",
-                "withheld_in_countries"
-            ]
-            for key in self.__generatekey(
-                datas=core["legacy"],
-                keys=KEYS_LEGACY_REMOVE
-            ):
-                del core["legacy"][key]
-
-            for key, value in core["legacy"].items():
-                if key == "profile_image_url_https":
-                    core["legacy"].update(
-                        {
-                            key: self.__replacechar(
-                                value,
-                                "400x400"
-                            )
-                        }
-                    )
-                if key == "created_at":
-                    initially = datetime.strptime(
-                        core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
-                    )
-                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                    core["legacy"].update({key: new})
+            core = self.__processuserresults(data=data)
 
         self.__removeallentites(
             keyword="entities",
@@ -528,71 +545,7 @@ class Users:
 
         core = {}
         if "core" in deeper:
-            core = deeper["core"]["user_results"]["result"]
-            KEYS_RESULT_REMOVE = [
-                "affiliates_highlighted_label",
-                "has_graduated_access",
-                "profile_image_shape",
-                "smart_blocked_by",
-                "smart_blocking",
-                "legacy_extended_profile",
-                "is_profile_translatable",
-                "has_hidden_likes_on_profile",
-                "has_hidden_subscriptions_on_profile",
-                "verification_info",
-                "highlights_info",
-                "creator_subscriptions_count"
-            ]
-            for key in self.__generatekey(
-                datas=core,
-                keys=KEYS_RESULT_REMOVE
-            ):
-                del core[key]
-
-            KEYS_LEGACY_REMOVE = [
-                "can_dm",
-                "can_media_tag",
-                "created_at",
-                "default_profile",
-                "default_profile_image",
-                "fast_followers_count",
-                "favourites_count",
-                "followers_count",
-                "friends_count",
-                "has_custom_timelines",
-                "is_translator",
-                "listed_count",
-                "media_count",
-                "normal_followers_count",
-                "pinned_tweet_ids_str",
-                "possibly_sensitive",
-                "statuses_count",
-                "translator_type",
-                "want_retweets",
-                "withheld_in_countries"
-            ]
-            for key in self.__generatekey(
-                datas=core["legacy"],
-                keys=KEYS_LEGACY_REMOVE
-            ):
-                del core["legacy"][key]
-
-            for key, value in core["legacy"].items():
-                if key == "profile_image_url_https":
-                    core["legacy"].update(
-                        {
-                            key: self.__replacechar(
-                                value,
-                                "400x400"
-                            )
-                        }
-                    )
-                if key == "created_at":
-                    initially = datetime.strptime(
-                        core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
-                    )
-                    new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                    core["legacy"].update({key: new})
+            core = self.__processuserresults(data=deeper)
 
         legacy = {}
         if "legacy" in deeper:
