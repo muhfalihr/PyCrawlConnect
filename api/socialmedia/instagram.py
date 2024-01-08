@@ -8,7 +8,7 @@ from flask_restx import Resource
 from enum import Enum
 from api import api
 from helper import success_response, error_response, flask_response
-from controller.socialmedia.instagram.api_ig import API
+from controller.socialmedia.instagram.igcrawl import InstagramCrawl
 from controller.socialmedia.instagram.downloader import Downloader
 from . import pk
 
@@ -28,7 +28,7 @@ class UsersIG(Resource):
     def get(self):
         try:
             username = request.values.get("username")
-            profile = API(cookie=cookies)
+            profile = InstagramCrawl(cookie=cookies)
             data = profile.profile(username=username)
             return (
                 success_response(data=data, message=f"success"),
@@ -73,7 +73,7 @@ class MediaUsersIG(Resource):
         try:
             username = request.values.get("username")
             max_id = request.values.get("max_id")
-            profile = API(cookie=cookies)
+            profile = InstagramCrawl(cookie=cookies)
             data = profile.media(username=username, max_id=max_id)
             return (
                 success_response(data=data, message=f"success"),
@@ -124,7 +124,7 @@ class UserComments(Resource):
         try:
             pk = request.values.get("pk")
             min_id = request.values.get("min_id")
-            profile = API(cookie=cookies)
+            profile = InstagramCrawl(cookie=cookies)
             data = profile.comments(pk=pk, min_id=min_id)
             return (
                 success_response(data=data, message=f"success"),
