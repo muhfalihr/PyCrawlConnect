@@ -14,45 +14,49 @@ from datetime import datetime
 from helper.utility import Utility
 
 
-class Users:
+class XCrawl:
     def __init__(self, cookie=None):
-        self.cookie = cookie
-        self.session = Session()
-        self.fake = Faker()
+        self.__cookie = cookie
+        self.__session = Session()
+        self.__fake = Faker()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
-        self.headers["Authorization"] = "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers["Authorization"] = "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
         if cookie is not None:
-            self.headers["Cookie"] = cookie
+            self.__headers["Cookie"] = cookie
+
+        self.__generatekey = lambda datas, keys:  [
+            key for key in datas if key in keys
+        ]
 
     def __guest_token(self):
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         url = "https://api.twitter.com/1.1/guest/activate.json"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.post(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.post(
             url=url,
-            headers=self.headers,
+            headers=self.__headers,
             timeout=60
         )
         status_code = resp.status_code
         content = resp.json()["guest_token"]
         if status_code == 200:
-            self.headers.update({
+            self.__headers.update({
                 "X-Guest-Token": content
             })
-            return self.headers["X-Guest-Token"]
+            return self.__headers["X-Guest-Token"]
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
     def __Csrftoken(self):
         pattern = re.compile(r'ct0=([a-zA-Z0-9_-]+)')
-        matches = pattern.search(self.cookie)
+        matches = pattern.search(self.__cookie)
         if matches:
             csrftoken = matches.group(1)
             return csrftoken
@@ -192,6 +196,16 @@ class Users:
 
                 fieldToggles = {"withArticleRichContentState": False}
 
+            case "following" | "followers" | "blue_verified_followers" | "followers_you_know":
+                userId = kwargs["userId"]
+                count = kwargs["count"]
+
+                variables = {
+                    "userId": f"{userId}",
+                    "count": count,
+                    "includePromotedContent": False
+                }
+
         params = {
             "variables": variables,
             "features": {
@@ -216,7 +230,12 @@ class Users:
                 "longform_notetweets_inline_media_enabled": True,
                 "responsive_web_media_download_video_enabled": False,
                 "responsive_web_enhance_cards_enabled": False
-            } if func_name in ["search", "posts", "media", "replies", "likes", "tweetdetail"] else {
+            } if func_name in [
+                "search", "posts", "media",
+                "replies", "likes", "tweetdetail",
+                "following", "followers", "blue_verified_followers",
+                "followers_you_know"
+            ] else {
                 "hidden_profile_likes_enabled": True,
                 "hidden_profile_subscriptions_enabled": True,
                 "responsive_web_graphql_exclude_directive_enabled": True,
@@ -346,17 +365,6 @@ class Users:
                             ):
                                 del e_um[key]
 
-    def __generatekey(self, datas: dict, keys: list):
-        if not isinstance(datas, dict):
-            raise TypeError("Invalid parameter for '__generatekey'. Expected dict, got {}".format(
-                type(datas).__name__)
-            )
-        if not isinstance(keys, list):
-            raise TypeError("Invalid parameter for '__generatekey'. Expected list, got {}".format(
-                type(keys).__name__)
-            )
-        return [key for key in datas if key in keys]
-
     def __replacechar(self, text: str, replacement: str):
         if not isinstance(text, str):
             raise TypeError("Invalid parameter for '__replacechar'. Expected str, got {}".format(
@@ -385,7 +393,7 @@ class Users:
             raise TypeError("Invalid parameter for '__processuserresults'. Expected dict, got {}".format(
                 type(data).__name__)
             )
-        core = data["core"]["user_results"]["result"]
+        datas = data["user_results"]["result"]
         KEYS_RESULT_REMOVE = [
             "affiliates_highlighted_label",
             "has_graduated_access",
@@ -401,10 +409,10 @@ class Users:
             "creator_subscriptions_count"
         ]
         for key in self.__generatekey(
-            datas=core,
+            datas=datas,
             keys=KEYS_RESULT_REMOVE
         ):
-            del core[key]
+            del datas[key]
 
         KEYS_LEGACY_REMOVE = [
             "can_dm",
@@ -429,14 +437,20 @@ class Users:
             "withheld_in_countries"
         ]
         for key in self.__generatekey(
-            datas=core["legacy"],
+            datas=datas["legacy"],
             keys=KEYS_LEGACY_REMOVE
         ):
-            del core["legacy"][key]
+            del datas["legacy"][key]
 
-        for key, value in core["legacy"].items():
+        for key, value in datas["legacy"].items():
+            if key == "entities":
+                for entities_key in datas["legacy"][key]:
+                    if "urls" in datas["legacy"][key][entities_key]:
+                        if datas["legacy"][key][entities_key]["urls"]:
+                            for item in datas["legacy"][key][entities_key]["urls"]:
+                                del item["indices"]
             if key == "profile_image_url_https":
-                core["legacy"].update(
+                datas["legacy"].update(
                     {
                         key: self.__replacechar(
                             value,
@@ -446,11 +460,49 @@ class Users:
                 )
             if key == "created_at":
                 initially = datetime.strptime(
-                    core["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
+                    datas["legacy"][key], "%a %b %d %H:%M:%S +0000 %Y"
                 )
                 new = initially.strftime("%Y-%m-%dT%H:%M:%S")
-                core["legacy"].update({key: new})
-        return core
+                datas["legacy"].update({key: new})
+        datas.update(
+            {
+                "legacy": {
+                    "name": datas["legacy"].get(
+                        "name", ""
+                    ),
+                    "screen_name": datas["legacy"].get(
+                        "screen_name", ""
+                    ),
+                    "verified": datas["legacy"].get(
+                        "verified", ""
+                    ),
+                    "description": datas["legacy"].get(
+                        "description", ""
+                    ),
+                    "entities": datas["legacy"].get(
+                        "entities", ""
+                    ),
+                    "location": datas["legacy"].get(
+                        "location", ""
+                    ),
+                    "profile_banner_url": datas["legacy"].get(
+                        "profile_banner_url", ""
+                    ),
+                    "profile_image_url_https": datas["legacy"].get(
+                        "profile_image_url_https", ""
+                    ),
+                    "profile_interstitial_type": datas["legacy"].get(
+                        "profile_interstitial_type", ""
+                    ),
+                    "url": datas["legacy"].get(
+                        "url", ""
+                    )
+                }
+            }
+        )
+        if "professional" not in datas:
+            datas.update({"professional": {}})
+        return datas
 
     def __processretweeted(self, data: dict) -> dict:
         """
@@ -470,7 +522,7 @@ class Users:
 
         core = {}
         if "core" in data:
-            core = self.__processuserresults(data=data)
+            core = self.__processuserresults(data=data["core"])
 
         self.__removeallentites(
             keyword="entities",
@@ -545,7 +597,7 @@ class Users:
 
         core = {}
         if "core" in deeper:
-            core = self.__processuserresults(data=deeper)
+            core = self.__processuserresults(data=deeper["core"])
 
         legacy = {}
         if "legacy" in deeper:
@@ -645,11 +697,13 @@ class Users:
                                 if "itemContent" in entry[key]:
                                     if entry[key]["itemContent"].get("cursorType", "") == "Bottom":
                                         cursor_value += entry[key]["itemContent"].get(
-                                            "value", "")
+                                            "value", ""
+                                        )
 
                             if entry[key].get("cursorType", "") == "Bottom":
                                 cursor_value += entry[key].get(
-                                    "value", "")
+                                    "value", ""
+                                )
 
             if isinstance(value, dict) and value["type"] == "TimelineAddToModule":
                 deep = instructions[index]
@@ -658,7 +712,8 @@ class Users:
                     if "item" in entry:
                         deeper = entry["item"]["itemContent"]["tweet_results"]["result"]
                         tweet_results = self.__processmedia(
-                            entry=deeper)
+                            entry=deeper
+                        )
                         datas.append(tweet_results)
 
         result = {
@@ -697,7 +752,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'search'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -726,18 +781,18 @@ class Users:
             variables=variables,
             features=features
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             params=params,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -806,7 +861,8 @@ class Users:
                                                 {key: new})
                                 if entry["content"].get("cursorType", "") == "Bottom":
                                     cursor_value += entry["content"].get(
-                                        "value", "")
+                                        "value", ""
+                                    )
                                 datas.append(user_results)
 
                             case "Media":
@@ -883,7 +939,7 @@ class Users:
             raise TypeError("Invalid parameter for 'profile'. Expected str, got {}".format(
                 type(screen_name).__name__)
             )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -900,17 +956,17 @@ class Users:
             features=features,
             fieldToggles=fieldToggles
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -995,7 +1051,7 @@ class Users:
                 type(limit).__name__)
             )
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1004,15 +1060,15 @@ class Users:
         )
         url = "https://api.twitter.com/1.1/users/recommendations.json"
 
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.get(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.get(
             url=url,
             params=params,
-            headers=self.headers,
+            headers=self.__headers,
             timeout=60,
             proxies=proxy
         )
@@ -1115,7 +1171,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'posts'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1132,17 +1188,17 @@ class Users:
             variables=variables,
             features=features
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -1171,7 +1227,8 @@ class Users:
                                 datas.append(data)
                             if entry["content"].get("cursorType", "") == "Bottom":
                                 cursor_value += entry["content"].get(
-                                    "value", "")
+                                    "value", ""
+                                )
 
                 if isinstance(value, dict) and value["type"] == "TimelineAddToModule":
                     deep = instructions[index]
@@ -1215,7 +1272,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'media'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1232,17 +1289,17 @@ class Users:
             variables=variables,
             features=features
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -1280,7 +1337,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1297,17 +1354,17 @@ class Users:
             variables=variables,
             features=features
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -1345,7 +1402,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1362,17 +1419,17 @@ class Users:
             variables=variables,
             features=features
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -1415,7 +1472,7 @@ class Users:
                 raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
             func_name=function_name,
@@ -1434,17 +1491,17 @@ class Users:
             features=features,
             fieldToggles=fieldToggles
         )
-        self.headers["User-Agent"] = user_agent
-        if self.cookie is None:
-            self.headers["X-Guest-Token"] = self.__guest_token()
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
         else:
-            self.headers["X-Csrf-Token"] = self.__Csrftoken()
-        resp = self.session.request(
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -1454,7 +1511,300 @@ class Users:
             data = json.loads(response)
             instructions = data["data"]["threaded_conversation_with_injections_v2"]["instructions"]
             result = self.__coreprocess(
-                instructions=instructions, tweetdetail=True)
+                instructions=instructions, tweetdetail=True
+            )
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def following(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
+        """
+
+        Arguments :
+          - userId (Required) The ID of the rest_id key contained in the search function results.
+          - count (Optional) Amount of data.
+        """
+        if not isinstance(userId, (str | int)):
+            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+                type(userId).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        user_agent = self.__fake.user_agent()
+        function_name = Utility.current_funcname()
+        params = self.__buildparams(
+            func_name=function_name,
+            userId=userId,
+            count=count
+        )
+        for key in params:
+            params.update({key: Utility.convertws(params[key])})
+
+        variables = quote(params["variables"])
+        features = quote(params["features"])
+        url = "https://twitter.com/i/api/graphql/0yD6Eiv23DKXRDU9VxlG2A/Following?variables={variables}&features={features}".format(
+            variables=variables,
+            features=features
+        )
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
+        else:
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
+            method="GET",
+            url=url,
+            timeout=60,
+            proxies=proxy,
+            headers=self.__headers,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            instructions = data["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]
+            datas = []
+            for index, value in enumerate(instructions):
+                if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
+                    datas = [
+                        self.__processuserresults(
+                            entry["content"]["itemContent"]
+                        )
+                        for entry in instructions[index]["entries"]
+                        if "content" in entry
+                        and "itemContent" in entry["content"]
+                        and "user_results" in entry["content"]["itemContent"]
+                    ]
+
+            result = {
+                "result": datas
+            }
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def followers(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
+        """
+
+        Arguments :
+          - userId (Required) The ID of the rest_id key contained in the search function results.
+          - count (Optional) Amount of data.
+        """
+        if not isinstance(userId, (str | int)):
+            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+                type(userId).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        user_agent = self.__fake.user_agent()
+        function_name = Utility.current_funcname()
+        params = self.__buildparams(
+            func_name=function_name,
+            userId=userId,
+            count=count
+        )
+        for key in params:
+            params.update({key: Utility.convertws(params[key])})
+
+        variables = quote(params["variables"])
+        features = quote(params["features"])
+        url = "https://twitter.com/i/api/graphql/3_7xfjmh897x8h_n6QBqTA/Followers?variables={variables}&features={features}".format(
+            variables=variables,
+            features=features
+        )
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
+        else:
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
+            method="GET",
+            url=url,
+            timeout=60,
+            proxies=proxy,
+            headers=self.__headers,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            instructions = data["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]
+            datas = []
+            for index, value in enumerate(instructions):
+                if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
+                    datas = [
+                        self.__processuserresults(
+                            entry["content"]["itemContent"]
+                        )
+                        for entry in instructions[index]["entries"]
+                        if "content" in entry
+                        and "itemContent" in entry["content"]
+                        and "user_results" in entry["content"]["itemContent"]
+                    ]
+
+            result = {
+                "result": datas
+            }
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def blue_verified_followers(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
+        """
+
+        Arguments :
+          - userId (Required) The ID of the rest_id key contained in the search function results.
+          - count (Optional) Amount of data.
+        """
+        if not isinstance(userId, (str | int)):
+            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+                type(userId).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        user_agent = self.__fake.user_agent()
+        function_name = Utility.current_funcname()
+        params = self.__buildparams(
+            func_name=function_name,
+            userId=userId,
+            count=count
+        )
+        for key in params:
+            params.update({key: Utility.convertws(params[key])})
+
+        variables = quote(params["variables"])
+        features = quote(params["features"])
+        url = "https://twitter.com/i/api/graphql/kNMtfqx9jhnY20rRxJUD2g/BlueVerifiedFollowers?variables={variables}&features={features}".format(
+            variables=variables,
+            features=features
+        )
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
+        else:
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
+            method="GET",
+            url=url,
+            timeout=60,
+            proxies=proxy,
+            headers=self.__headers,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            instructions = data["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]
+            datas = []
+            for index, value in enumerate(instructions):
+                if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
+                    datas = [
+                        self.__processuserresults(
+                            entry["content"]["itemContent"]
+                        )
+                        for entry in instructions[index]["entries"]
+                        if "content" in entry
+                        and "itemContent" in entry["content"]
+                        and "user_results" in entry["content"]["itemContent"]
+                    ]
+
+            result = {
+                "result": datas
+            }
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def followers_you_know(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
+        """
+
+        Arguments :
+          - userId (Required) The ID of the rest_id key contained in the search function results.
+          - count (Optional) Amount of data.
+        """
+        if not isinstance(userId, (str | int)):
+            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+                type(userId).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        user_agent = self.__fake.user_agent()
+        function_name = Utility.current_funcname()
+        params = self.__buildparams(
+            func_name=function_name,
+            userId=userId,
+            count=count
+        )
+        for key in params:
+            params.update({key: Utility.convertws(params[key])})
+
+        variables = quote(params["variables"])
+        features = quote(params["features"])
+        url = "https://twitter.com/i/api/graphql/NM7p_h1LQ_Jf4pEeavxM7A/FollowersYouKnow?variables={variables}&features={features}".format(
+            variables=variables,
+            features=features
+        )
+        self.__headers["User-Agent"] = user_agent
+        if self.__cookie is None:
+            self.__headers["X-Guest-Token"] = self.__guest_token()
+        else:
+            self.__headers["X-Csrf-Token"] = self.__Csrftoken()
+        resp = self.__session.request(
+            method="GET",
+            url=url,
+            timeout=60,
+            proxies=proxy,
+            headers=self.__headers,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            instructions = data["data"]["user"]["result"]["timeline"]["timeline"]["instructions"]
+            datas = []
+            for index, value in enumerate(instructions):
+                if isinstance(value, dict) and value["type"] == "TimelineAddEntries":
+                    datas = [
+                        self.__processuserresults(
+                            entry["content"]["itemContent"]
+                        )
+                        for entry in instructions[index]["entries"]
+                        if "content" in entry
+                        and "itemContent" in entry["content"]
+                        and "user_results" in entry["content"]["itemContent"]
+                    ]
+
+            result = {
+                "result": datas
+            }
             return result
         else:
             raise Exception(
@@ -1463,4 +1813,4 @@ class Users:
 
 if __name__ == "__main__":
     cookie = ""
-    sb = Users()
+    sb = XCrawl()
