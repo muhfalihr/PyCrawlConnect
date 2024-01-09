@@ -933,7 +933,7 @@ class XCrawl:
         """Function to retrieve user profile details from specified screen_name. The result is a data dictionary.
 
         Arguments:
-        - screen_name = username on twitter.
+        - screen_name (Required) username on twitter.
         """
         if not isinstance(screen_name, str):
             raise TypeError("Invalid parameter for 'profile'. Expected str, got {}".format(
@@ -1037,8 +1037,8 @@ class XCrawl:
         """Function to retrieve recommended Twitter users according to the userId entered. The result is a data dictionary.
 
         Arguments:
-        - userId = ID of the Twitter user.
-        - limit = number of recommended users.
+        - userId (Required) ID of the Twitter user.
+        - limit (Optional) number of recommended users.
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'recomendation'. Expected str|int, got {}".format(
