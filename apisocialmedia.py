@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     argp = argparse.ArgumentParser(description="API")
     argp.add_argument(
-        "-p", "--port", dest="port", help="engine port listened", type=int, default=8002
+        "-p", "--port", dest="port", help="engine port listened", type=int, default=8004
     )
     argp.add_argument("-apps", "--apps", dest="apps", help="apps listened")
 
