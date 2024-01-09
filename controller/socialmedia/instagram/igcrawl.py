@@ -35,6 +35,14 @@ class InstagramCrawl:
         return None
 
     def __processmedia(self, item: dict):
+        """
+        Process media entry data and return a cleaned dictionary.
+        """
+        if not isinstance(item, dict):
+            raise TypeError("Invalid parameter for '__processmedia'. Expected dict, got {}".format(
+                type(item).__name__)
+            )
+
         pk = item["pk"]
         id = item["id"]
 
@@ -171,18 +179,30 @@ class InstagramCrawl:
         }
         return data
 
-    def profile(self, username: str, proxy=None):
+    def profile(self, username: str, proxy=None, **kwargs):
+        """Retrieve information from the desired Instagram user profile via the username argument.
+
+        Arguments :
+          - username (Required)
+        """
+        if not isinstance(username, str):
+            raise TypeError("Invalid parameter for 'profile'. Expected str, got {}".format(
+                type(username).__name__)
+            )
+
         user_agent = self.fake.user_agent()
         url = f"https://www.instagram.com/api/v1/users/web_profile_info/?username={username}"
         self.headers["User-Agent"] = user_agent
         self.headers["X-Asbd-Id"] = "129477"
         self.headers["X-Csrftoken"] = self.__Csrftoken()
         self.headers["X-Ig-App-Id"] = "936619743392459"
-        resp = self.session.get(
+        resp = self.session.request(
+            method="GET",
             url=url,
             headers=self.headers,
             timeout=60,
-            proxies=proxy
+            proxies=proxy,
+            **kwargs
         )
         status_code = resp.status_code
         content = resp.content
@@ -197,19 +217,44 @@ class InstagramCrawl:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def media(self, username: str, max_id: str = None, proxy=None):
+    def media(self, username: str, count: int = 33, max_id: str = None, proxy=None, **kwargs):
+        """Retrieves media posted by Instagram users via the specified username argument.
+
+        Arguments :
+          - username (Required)
+          - count (Optional) defaultnya 33.
+          - max_id (Optional) Arguments to retrieve results from the next API.
+        """
+        if not isinstance(username, str):
+            raise TypeError("Invalid parameter for 'media'. Expected str, got {}".format(
+                type(username).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'media'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        if max_id is not None:
+            if not isinstance(max_id, str):
+                raise TypeError("Invalid parameter for 'media'. Expected str, got {}".format(
+                    type(max_id).__name__)
+                )
+
         user_agent = self.fake.user_agent()
-        max_id = f"&max_id={max_id}" if max_id else ""
-        url = f"https://www.instagram.com/api/v1/feed/user/{username}/username/?count=33{max_id}"
+        url = f"https://www.instagram.com/api/v1/feed/user/{username}/username/?count={count}"\
+            if max_id else f"https://www.instagram.com/api/v1/feed/user/{username}/username/?count={count}&max_id={max_id}"
         self.headers["User-Agent"] = user_agent
         self.headers["X-Asbd-Id"] = "129477"
         self.headers["X-Csrftoken"] = self.__Csrftoken()
         self.headers["X-Ig-App-Id"] = "936619743392459"
-        resp = self.session.get(
+        resp = self.session.request(
+            method="GET",
             url=url,
             headers=self.headers,
             timeout=60,
-            proxies=proxy
+            proxies=proxy,
+            **kwargs
         )
         status_code = resp.status_code
         content = resp.content
@@ -231,12 +276,26 @@ class InstagramCrawl:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def comments(self, pk: str, min_id: str = None, proxy=None):
+    def comments(self, pk: str, min_id: str = None, proxy=None, **kwargs):
+        """Retrieves all comments from a user's post specified using the pk argument.
+
+        Arguments :
+          - pk (Required)
+          - min_id (Optional) Arguments to retrieve results from the next API.
+        """
+        if not isinstance(pk, str):
+            raise TypeError("Invalid parameter for 'comments'. Expected str, got {}".format(
+                type(pk).__name__)
+            )
+        if min_id is not None:
+            if not isinstance(min_id, str):
+                raise TypeError("Invalid parameter for 'comments'. Expected str, got {}".format(
+                    type(min_id).__name__)
+                )
+
         user_agent = self.fake.user_agent()
         if min_id:
-            min_id = min_id.replace("\\", "")
-            min_id = unquote(min_id).replace(" ", "")
-            min_id = quote(min_id)
+            min_id = quote(unquote(min_id.replace("\\", "")).replace(" ", ""))
             url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&min_id={min_id}&sort_order=popular"
         else:
             url = f"https://www.instagram.com/api/v1/media/{pk}/comments/?can_support_threading=true&permalink_enabled=false"
@@ -244,11 +303,13 @@ class InstagramCrawl:
         self.headers["X-Asbd-Id"] = "129477"
         self.headers["X-Csrftoken"] = self.__Csrftoken()
         self.headers["X-Ig-App-Id"] = "936619743392459"
-        resp = self.session.get(
+        resp = self.session.request(
+            method="GET",
             url=url,
             headers=self.headers,
             timeout=60,
-            proxies=proxy
+            proxies=proxy,
+            **kwargs
         )
         status_code = resp.status_code
         content = resp.content
@@ -269,7 +330,8 @@ class InstagramCrawl:
                         "inline_composer_display_condition",
                         "has_liked_comment",
                         "has_more_head_child_comments",
-                        "has_more_tail_child_comments"
+                        "has_more_tail_child_comments",
+                        "private_reply_status"
                     ]
                     for key in KEYS_COMMENT_REMOVE:
                         if key in comment:
@@ -279,7 +341,9 @@ class InstagramCrawl:
                         "strong_id__",
                         "fbid_v2",
                         "is_verified",
-                        "profile_pic_id"
+                        "profile_pic_id",
+                        "latest_reel_media",
+                        "latest_besties_reel_media"
                     ]
                     if "user" in comment:
                         for key in KEYS_COMMENT_USER:
@@ -288,7 +352,9 @@ class InstagramCrawl:
             result = {
                 "result": {
                     "comments": data["comments"],
-                    "next_min_id": data.get("next_min_id", "")
+                    "next_min_id": data.get(
+                        "next_min_id", ""
+                    )
                 }
             }
             return result
@@ -296,7 +362,30 @@ class InstagramCrawl:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")
 
-    def be_marked(self, userid: str | int, count: int = 12, cursor: str = None, proxy=None):
+    def be_marked(self, userid: str | int, count: int = 12, cursor: str = None, proxy=None, **kwargs):
+        """Retrieves posts tagged to the user specified using the userid argument.
+
+        Arguments :
+          - userid (Required)
+          - count (Optional) defaultnya 12.
+          - cursor (Optional) The key used to load the next page.
+        """
+        if not isinstance(userid, (str | int)):
+            raise TypeError("Invalid parameter for 'be_marked'. Expected str, got {}".format(
+                type(userid).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'be_marked'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        if cursor is not None:
+            if not isinstance(cursor, str):
+                raise TypeError("Invalid parameter for 'be_marked'. Expected str, got {}".format(
+                    type(cursor).__name__)
+                )
+
         user_agent = self.fake.user_agent()
         params = {
             "variables": {
@@ -322,7 +411,8 @@ class InstagramCrawl:
             url=url,
             headers=self.headers,
             timeout=60,
-            proxies=proxy
+            proxies=proxy,
+            **kwargs
         )
         status_code = resp.status_code
         content = resp.content
@@ -362,6 +452,158 @@ class InstagramCrawl:
                 "end_cursor": end_cursor
             }
             return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def following(self, userid: str | int, count: int = 12, max_id: int = None, proxy=None, **kwargs):
+        """Retrieves a list of users followed by users specified using the userid argument.
+
+        Arguments :
+          - userid (Required)
+          - count (Optional) defaultnya 12.
+          - max_id (Optional) Arguments to retrieve results from the next API.
+        """
+        if not isinstance(userid, (str | int)):
+            raise TypeError("Invalid parameter for 'following'. Expected str, got {}".format(
+                type(userid).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        if max_id is not None:
+            if not isinstance(max_id, int):
+                raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+                    type(max_id).__name__)
+                )
+        user_agent = self.fake.user_agent()
+        url = f"https://www.instagram.com/api/v1/friendships/{userid}/following/?count={count}&max_id={max_id}"\
+            if max_id else f"https://www.instagram.com/api/v1/friendships/{userid}/following/?count={count}"
+
+        self.headers["User-Agent"] = user_agent
+        self.headers["X-Asbd-Id"] = "129477"
+        self.headers["X-Csrftoken"] = self.__Csrftoken()
+        self.headers["X-Ig-App-Id"] = "936619743392459"
+        resp = self.session.request(
+            method="GET",
+            url=url,
+            headers=self.headers,
+            timeout=60,
+            proxies=proxy,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            datas = []
+            next_max_id = data.get(
+                "next_max_id", ""
+            )
+            for user in data["users"]:
+                user_data = {
+                    "id": user.get(
+                        "pk", ""
+                    ),
+                    "username": user.get(
+                        "username", ""
+                    ),
+                    "full_name": user.get(
+                        "full_name", ""
+                    ),
+                    "profile_pic_url": user.get(
+                        "profile_pic_url", ""
+                    ),
+                    "is_verified": user.get(
+                        "is_verified", ""
+                    ),
+                }
+                datas.append(user_data)
+            result = {
+                "result": datas,
+                "next_max_id": next_max_id
+            }
+            return result
+        else:
+            raise Exception(
+                f"Error! status code {resp.status_code} : {resp.reason}")
+
+    def followers(self, userid: str | int, count: int = 12, max_id: int = None, proxy=None, **kwargs):
+        """Retrieves a list of users who follow the user specified using the userid argument.
+
+        Arguments :
+          - userid (Required)
+          - count (Optional) defaultnya 12.
+          - max_id (Optional) Arguments to retrieve results from the next API.
+        """
+        if not isinstance(userid, (str | int)):
+            raise TypeError("Invalid parameter for 'followers'. Expected str, got {}".format(
+                type(userid).__name__)
+            )
+        if isinstance(count, str):
+            count = int(count)
+        elif not isinstance(count, int):
+            raise TypeError("Invalid parameter for 'followers'. Expected int, got {}".format(
+                type(count).__name__)
+            )
+        if max_id is not None:
+            if not isinstance(max_id, int):
+                raise TypeError("Invalid parameter for 'followers'. Expected int, got {}".format(
+                    type(max_id).__name__)
+                )
+
+        user_agent = self.fake.user_agent()
+        url = f"https://www.instagram.com/api/v1/friendships/{userid}/followers/?count={count}&max_id={max_id}"\
+            if max_id else f"https://www.instagram.com/api/v1/friendships/{userid}/followers/?count={count}"
+
+        self.headers["User-Agent"] = user_agent
+        self.headers["X-Asbd-Id"] = "129477"
+        self.headers["X-Csrftoken"] = self.__Csrftoken()
+        self.headers["X-Ig-App-Id"] = "936619743392459"
+        resp = self.session.request(
+            method="GET",
+            url=url,
+            headers=self.headers,
+            timeout=60,
+            proxies=proxy,
+            **kwargs
+        )
+        status_code = resp.status_code
+        content = resp.content
+        if status_code == 200:
+            response = content.decode('utf-8')
+            data = json.loads(response)
+            datas = []
+            for user in data["users"]:
+                user_data = {
+                    "id": user.get(
+                        "pk", ""
+                    ),
+                    "username": user.get(
+                        "username", ""
+                    ),
+                    "full_name": user.get(
+                        "full_name", ""
+                    ),
+                    "profile_pic_url": user.get(
+                        "profile_pic_url", ""
+                    ),
+                    "is_verified": user.get(
+                        "is_verified", ""
+                    ),
+                }
+                datas.append(user_data)
+            next_max_id = len(datas)
+            result = {
+                "result": datas,
+                "next_max_id": next_max_id
+            }
+            return result
+
         else:
             raise Exception(
                 f"Error! status code {resp.status_code} : {resp.reason}")

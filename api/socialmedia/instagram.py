@@ -14,7 +14,8 @@ from . import pk
 
 instagram = Blueprint("instagram", __name__)
 ns_api = api.namespace("instagram", description="Social Media")
-cookies = "ig_did=3ABCC936-AF74-4336-A4EB-7DA5FFEDA4A3; datr=gSJ5ZVzOZePX4p1BJ0SxrjNN; mid=ZXkihwAEAAFoAqJ6keaV4txQaUuz; ig_nrcb=1; shbid=\"5680\05433964907779\0541735354007:01f78d55aadf11b317d96761a907671b471332d788b998a0a27bef6a3877871f3a26f7ee\"; shbts=\"1703818007\05433964907779\0541735354007:01f7443ecb3f3d9851fcac85e8c737956542507f73840303bff7d5422651291f701fb261\"; csrftoken=UUsIB4w3gqGzHFDPYpJZn49i5vo6Dno1; ds_user_id=63948446931; rur=\"NHA\05463948446931\0541735722517:01f755f224ff5c3c15e07c9836afe974ee5f28e93f742bb5289338368f2501d3291e4412\"; sessionid=63948446931%3AMOcQTY6Lz8PHgd%3A18%3AAYeJpLEp5-QeC0dZ8n-3MA2RGzfk7bInblKDSvV9Vw"
+# Required
+cookies = ""
 
 
 @ns_api.route("/user-profile", methods=["GET"])
@@ -22,7 +23,10 @@ class UsersIG(Resource):
     @api.doc(
         responses=flask_response("get"),
         params={
-            "username": {"description": "username\nExample: gibran_rakabuming", "required": True},
+            "username": {
+                "description": "username\nExample: gibran_rakabuming",
+                "required": True
+            },
         },
     )
     def get(self):
@@ -65,16 +69,27 @@ class MediaUsersIG(Resource):
     @api.doc(
         responses=flask_response("get"),
         params={
-            "username": {"description": "username\nExample: gibran_rakabuming", "required": True},
-            "max_id": {"description": "max_id\nTaken from key next_max_id from this result.\nExample: 3038059354248345987_51296391646"}
+            "username": {
+                "description": "username\nExample: gibran_rakabuming",
+                "required": True
+            },
+            "count": {
+                "description": "amount of data",
+                "default": 33,
+                "type": int
+            },
+            "max_id": {
+                "description": "Taken from the next_max_id key value.\nExample: 3038059354248345987_51296391646"
+            }
         },
     )
     def get(self):
         try:
             username = request.values.get("username")
+            count = request.values.get("count")
             max_id = request.values.get("max_id")
             profile = InstagramCrawl(cookie=cookies)
-            data = profile.media(username=username, max_id=max_id)
+            data = profile.media(username=username, count=count, max_id=max_id)
             return (
                 success_response(data=data, message=f"success"),
                 200,
@@ -115,7 +130,7 @@ class UserComments(Resource):
                 "required": True
             },
             "min_id": {
-                "description": "min_id.\nTaken from the results of this onpoint, the bottom part.\nExample : {\"cached_comments_cursor\": \"17988012536591264\", \"bifilter_token\": \"KDMBDABYACAAEAAIAAgACAD_fXr6_3_995q__en__7BXfbv-___f_K-X____-mS5RHi0EQQA\"}",
+                "description": "Taken from the next_min_id key value.",
                 "type": str
             }
         },
@@ -126,6 +141,174 @@ class UserComments(Resource):
             min_id = request.values.get("min_id")
             profile = InstagramCrawl(cookie=cookies)
             data = profile.comments(pk=pk, min_id=min_id)
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
+
+
+@ns_api.route("/user-be_marked", methods=["GET"])
+class BeMarked(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "userid": {
+                "description": "id from profile onpoint result",
+                "required": True
+            },
+            "count": {
+                "description": "amount of data",
+                "default": 12,
+                "type": int
+            },
+            "cursor": {
+                "description": "Taken from the end_cursor key value."
+            }
+        },
+    )
+    def get(self):
+        try:
+            userid = request.values.get("userid")
+            count = request.values.get("count")
+            cursor = request.values.get("cursor")
+            profile = InstagramCrawl(cookie=cookies)
+            data = profile.be_marked(userid=userid, count=count, cursor=cursor)
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
+
+
+@ns_api.route("/user-followed", methods=["GET"])
+class Following(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "userid": {
+                "description": "id from profile onpoint result",
+                "required": True
+            },
+            "count": {
+                "description": "amount of data",
+                "default": 12,
+                "type": int
+            },
+            "max_id": {
+                "description": "Taken from the next_max_id key value."
+            }
+        },
+    )
+    def get(self):
+        try:
+            userid = request.values.get("userid")
+            count = request.values.get("count")
+            max_id = request.values.get("max_id")
+            profile = InstagramCrawl(cookie=cookies)
+            data = profile.following(userid=userid, count=count, max_id=max_id)
+            return (
+                success_response(data=data, message=f"success"),
+                200,
+            )
+        except Exception as e:
+            if re.search("status code", str(e)):
+                pattern = r"status code (\d+) : (.+)"
+                match = re.search(pattern, str(e))
+                if match:
+                    status_code = match.group(1)
+                    message = match.group(2)
+                    return error_response(
+                        message=json.dumps(
+                            dict(
+                                message=message,
+                                status=int(status_code),
+                            )
+                        ),
+                        status=int(status_code),
+                    )
+                else:
+                    return error_response(
+                        message=json.dumps(dict(message=str(e), status=500))
+                    )
+            else:
+                return error_response(
+                    message=json.dumps(dict(message=str(e), status=500))
+                )
+
+
+@ns_api.route("/user-followers", methods=["GET"])
+class Followers(Resource):
+    @api.doc(
+        responses=flask_response("get"),
+        params={
+            "userid": {
+                "description": "id from profile onpoint result",
+                "required": True
+            },
+            "count": {
+                "description": "amount of data",
+                "default": 12,
+                "type": int
+            },
+            "max_id": {
+                "description": "Taken from the next_max_id key value."
+            }
+        },
+    )
+    def get(self):
+        try:
+            userid = request.values.get("userid")
+            count = request.values.get("count")
+            max_id = request.values.get("max_id")
+            profile = InstagramCrawl(cookie=cookies)
+            data = profile.followers(userid=userid, count=count, max_id=max_id)
             return (
                 success_response(data=data, message=f"success"),
                 200,
