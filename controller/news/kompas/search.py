@@ -14,10 +14,12 @@ from datetime import datetime
 from langdetect import detect
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
+from typing import Any, Optional
 
 
 class Search:
-    def __init__(self):
+    def __init__(self) -> dict:
         self.session = requests.session()
         self.jar = RequestsCookieJar()
         self.fake = Faker()
@@ -42,7 +44,16 @@ class Search:
             )
         return self.jar
 
-    def search(self, page, site, date=None, proxy=None, cookies=None, **kwargs):
+    def search(
+            self,
+            page: int,
+            site: str,
+            date: Optional[str] = None,
+            proxy: Optional[str] = None,
+            cookies: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
         if cookies:
             cookies = self.__set_cookies(cookies=cookies)
@@ -281,16 +292,18 @@ class Search:
                     }
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":

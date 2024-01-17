@@ -1,69 +1,75 @@
-import requests
 import re
-import json
-import random
-import string
 
-from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
-from urllib.parse import urljoin, urlencode, unquote
+from requests import Session
+from helper.exception import *
+from helper.utility import Utility
 from faker import Faker
+from typing import Any, Optional
 
 
 class Downloader:
-    def __init__(self):
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
-
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
+    def __init__(self, cookie: str = None) -> Any:
+        if not isinstance(cookie, str):
+            raise TypeError("Invalid parameter for 'Downloader'. Expected str, got {}".format(
+                type(cookie).__name__)
             )
-        return self.jar
 
-    def download(self, url, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
-            "GET",
+        self.__session = Session()
+        self.__fake = Faker()
+
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
+        if cookie is not None:
+            self.__headers["Cookie"] = cookie
+
+    def download(self, url: str, proxy: Optional[str] = None, **kwargs) -> Any:
+        if not isinstance(url, str):
+            raise TypeError("Invalid parameter for 'download'. Expected str, got {}".format(
+                type(url).__name__)
+            )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'download'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
+        user_agent = self.__fake.user_agent()
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
+            method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs,
         )
         status_code = resp.status_code
         data = resp.content
         if status_code == 200:
             try:
-                filename = url.split("/")[-1]
+                if ".mp4" in url:
+                    pattern = re.compile(r'/([^/?]+)\?')
+                    matches = pattern.search(url)
+                    if matches:
+                        filename = matches.group(1)
+                    else:
+                        filename = Utility.hashmd5(url) + ".mp4"
+                else:
+                    filename = url.split("/")[-1]
             except IndexError:
-                filename = resp.headers.get("x-transaction-id")
+                filename = Utility.hashmd5(url) + ".jpg"
             content_type = resp.headers.get("content-type")
             return data, filename, content_type
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
-    search = Downloader()
+    cookie = ''
+    search = Downloader(cookie=cookie)

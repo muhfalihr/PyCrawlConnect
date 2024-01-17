@@ -1,21 +1,22 @@
-import unicodedata
-import pytz
-import hashlib
 import re
 import json
-import random
-import string
-import time
 
 from requests.sessions import Session
 from urllib.parse import quote, unquote
 from faker import Faker
 from datetime import datetime
 from helper.utility import Utility
+from helper.exception import *
+from typing import Optional, Any
 
 
 class XCrawl:
-    def __init__(self, cookie=None):
+    def __init__(self, cookie: str = None) -> Any:
+        if not isinstance(cookie, str):
+            raise TypeError("Invalid parameter for 'XCrawl'. Expected str, got {}".format(
+                type(cookie).__name__)
+            )
+        
         self.__cookie = cookie
         self.__session = Session()
         self.__fake = Faker()
@@ -34,7 +35,7 @@ class XCrawl:
             key for key in datas if key in keys
         ]
 
-    def __guest_token(self):
+    def __guest_token(self) -> str:
         user_agent = self.__fake.user_agent()
         url = "https://api.twitter.com/1.1/guest/activate.json"
         self.__headers["User-Agent"] = user_agent
@@ -44,23 +45,27 @@ class XCrawl:
             timeout=60
         )
         status_code = resp.status_code
-        content = resp.json()["guest_token"]
+        content = resp.json().get("guest_token")
         if status_code == 200:
             self.__headers.update({
                 "X-Guest-Token": content
             })
-            return self.__headers["X-Guest-Token"]
+            return self.__headers.get("X-Guest-Token")
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def __Csrftoken(self):
+    def __Csrftoken(self) -> str:
         pattern = re.compile(r'ct0=([a-zA-Z0-9_-]+)')
         matches = pattern.search(self.__cookie)
         if matches:
             csrftoken = matches.group(1)
             return csrftoken
-        return None
+        else:
+            raise CSRFTokenMissingError(
+                "Error! CSRF token is missing. Please ensure that a valid CSRF token is included in the cookie."
+            )
 
     def __buildparams(self, **kwargs):
         func_name = kwargs["func_name"]
@@ -365,7 +370,7 @@ class XCrawl:
                             ):
                                 del e_um[key]
 
-    def __replacechar(self, text: str, replacement: str):
+    def __replacechar(self, text: str, replacement: str) -> str:
         if not isinstance(text, str):
             raise TypeError("Invalid parameter for '__replacechar'. Expected str, got {}".format(
                 type(text).__name__)
@@ -385,7 +390,7 @@ class XCrawl:
             return result
         return text
 
-    def __processuserresults(self, data: dict):
+    def __processuserresults(self, data: dict) -> dict:
         """
         Process user results data and return a cleaned dictionary.
         """
@@ -572,7 +577,7 @@ class XCrawl:
         }
         return result
 
-    def __processmedia(self, entry: dict = None) -> dict:
+    def __processmedia(self, entry: Optional[dict] = None) -> dict:
         """
         Process media entry data and return a cleaned dictionary.
         """
@@ -663,10 +668,14 @@ class XCrawl:
         }
         return data
 
-    def __coreprocess(self, instructions: list, tweetdetail: bool = False) -> dict:
+    def __coreprocess(self, instructions: list, tweetdetail: Optional[bool] = False) -> dict:
         if not isinstance(instructions, list):
             raise TypeError("Invalid parameter for '__coreprocess'. Expected list, got {}".format(
                 type(instructions).__name__)
+            )
+        if not isinstance(tweetdetail, bool):
+            raise TypeError("Invalid parameter for '__coreprocess'. Expected bool, got {}".format(
+                type(tweetdetail).__name__)
             )
 
         datas = []
@@ -722,7 +731,15 @@ class XCrawl:
         }
         return result
 
-    def search(self, rawquery: str, product: str, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
+    def search(
+            self,
+            rawquery: str,
+            product: str,
+            count: Optional[int] = 20,
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
         """Function to search for the intended user from the given rawquery parameter value using the obtained Twitter API.
 
         Arguments :
@@ -730,6 +747,10 @@ class XCrawl:
           - product (Required) Choose between Top, Latest, People, and Media.
           - count (Optional) Amount of data.
           - cursor (Optional) The key used to load the next page.
+          - proxy (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Arguments :
+          - **kwargs
         """
         if isinstance(rawquery, str):
             rawquery = quote(rawquery)
@@ -752,6 +773,7 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'search'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -775,6 +797,7 @@ class XCrawl:
                             )
                         }
                     )
+
         variables = quote(params["variables"])
         features = quote(params["features"])
         url = "https://twitter.com/i/api/graphql/Aj1nGkALq99Xg3XI0OZBtw/SearchTimeline?variables={variables}&features={features}".format(
@@ -915,7 +938,7 @@ class XCrawl:
                             )
 
             if not datas:
-                raise Exception(
+                raise HTTPErrorException(
                     "Error! status code 404 : Not Found"
                 )
 
@@ -926,19 +949,30 @@ class XCrawl:
 
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def profile(self, screen_name: str = None, proxy=None, **kwargs) -> dict:
+    def profile(self, screen_name: str, proxy: Optional[str] = None, **kwargs) -> dict:
         """Function to retrieve user profile details from specified screen_name. The result is a data dictionary.
 
         Arguments:
-        - screen_name (Required) username on twitter.
+          - screen_name (Required) username on twitter.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(screen_name, str):
             raise TypeError("Invalid parameter for 'profile'. Expected str, got {}".format(
                 type(screen_name).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'profile'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -956,6 +990,7 @@ class XCrawl:
             features=features,
             fieldToggles=fieldToggles
         )
+
         self.__headers["User-Agent"] = user_agent
         if self.__cookie is None:
             self.__headers["X-Guest-Token"] = self.__guest_token()
@@ -974,7 +1009,7 @@ class XCrawl:
         if status_code == 200:
             response = content.decode('utf-8')
             data = json.loads(response)
-            result: dict = data["data"]["user"]["result"]
+            result = data["data"]["user"]["result"]
             KEYS_RESULT_REMOVE = [
                 "affiliates_highlighted_label",
                 "has_graduated_access",
@@ -1030,15 +1065,22 @@ class XCrawl:
                     result["legacy"].update({key: new})
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def recomendation(self, userId: str | int, limit: int = 20, proxy=None) -> dict:
+    def recomendation(
+            self,
+            userId: str | int,
+            limit: Optional[int] = 20,
+            proxy: Optional[str] = None
+    ) -> dict:
         """Function to retrieve recommended Twitter users according to the userId entered. The result is a data dictionary.
 
         Arguments:
-        - userId (Required) ID of the Twitter user.
-        - limit (Optional) number of recommended users.
+          - userId (Required) ID of the Twitter user.
+          - limit (Optional) number of recommended users.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'recomendation'. Expected str|int, got {}".format(
@@ -1050,6 +1092,11 @@ class XCrawl:
             raise TypeError("Invalid parameter for 'recomendation'. Expected int, got {}".format(
                 type(limit).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'recomendation'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
 
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
@@ -1058,8 +1105,8 @@ class XCrawl:
             userId=userId,
             limit=limit
         )
-        url = "https://api.twitter.com/1.1/users/recommendations.json"
 
+        url = "https://api.twitter.com/1.1/users/recommendations.json"
         self.__headers["User-Agent"] = user_agent
         if self.__cookie is None:
             self.__headers["X-Guest-Token"] = self.__guest_token()
@@ -1144,10 +1191,18 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def posts(self, userId: int | str, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
+    def posts(
+            self,
+            userId: int | str,
+            count: Optional[int] = 20,
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
         """The function to retrieve details from a user's post uses the userId input obtained when retrieving user profile details.
         The result is a data dictionary.
 
@@ -1155,6 +1210,10 @@ class XCrawl:
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
           - cursor (Optional) The key used to load the next page.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'posts'. Expected str|int, got {}".format(
@@ -1171,6 +1230,12 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'posts'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'posts'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1246,16 +1311,28 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def media(self, userId: str | int, count: int = 20, cursor: str = None, proxy=None, **kwargs) -> dict:
+    def media(
+            self,
+            userId: str | int,
+            count: Optional[int] = 20,
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
         """The function to retrieve details from the user's post uses the screen_name input. The result is a data dictionary.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
           - cursor (Optional) The key used to load the next page.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'media'. Expected str|int, got {}".format(
@@ -1272,6 +1349,12 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'media'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'media'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1311,16 +1394,28 @@ class XCrawl:
             result = self.__coreprocess(instructions=instructions)
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def replies(self, userId: str | int, count: int = 20, cursor: str = None, proxy=None, **kwargs):
+    def replies(
+            self,
+            userId: str | int,
+            count: Optional[int] = 20,
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
         """Retrieve other users' Twitter posts that are replied to by the user whose user ID we input.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
           - cursor (Optional) The key used to load the next page.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'replies'. Expected str|int, got {}".format(
@@ -1337,6 +1432,12 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1376,16 +1477,27 @@ class XCrawl:
             result = self.__coreprocess(instructions=instructions)
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def likes(self, userId: str | int, count: int = 20, cursor: str = None, proxy=None, **kwargs):
+    def likes(
+            self, userId: str | int,
+            count: Optional[int] = 20,
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
         """Retrieve other users' Twitter posts that the user likes from the userId input.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
           - cursor (Optional) The key used to load the next page.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'replies'. Expected str|int, got {}".format(
@@ -1402,6 +1514,12 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'replies'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1441,23 +1559,28 @@ class XCrawl:
             result = self.__coreprocess(instructions=instructions)
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
     def tweetdetail(
             self,
             focalTweetId: str | int,
-            controller_data: str = "DAACDAABDAABCgABAAAAAAAAAAAKAAkXK+YwNdoAAAAAAAA=",
-            cursor: str = None,
-            proxy=None,
+            controller_data: Optional[str] = "DAACDAABDAABCgABAAAAAAAAAAAKAAkXK+YwNdoAAAAAAAA=",
+            cursor: Optional[str] = None,
+            proxy: Optional[str] = None,
             **kwargs
-    ):
+    ) -> dict:
         """Retrieves tweet details from each user's post.
 
         Arguments :
           - focalTweetId (Required) Taken from the "rest_id" key value contained in the return results of other functions.
           - controller_data (Don't change it)
           - cursor (Optional) The key used to load the next page.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(focalTweetId, (str | int)):
             raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
@@ -1472,6 +1595,12 @@ class XCrawl:
                 raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
                     type(cursor).__name__)
                 )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'tweetdetail'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1515,15 +1644,26 @@ class XCrawl:
             )
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def following(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
-        """
+    def following(
+            self,
+            userId: str | int,
+            count: Optional[int] = 20,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+        """The function is used to retrieve the users followed by the specified user and returns the results in the form of a dictionary.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
             raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
@@ -1535,6 +1675,12 @@ class XCrawl:
             raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
                 type(count).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'following'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1588,26 +1734,37 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
     def followers(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
-        """
+        """The function is used to retrieve the users who follow the specified user and returns the results in the form of a dictionary.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
-            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+            raise TypeError("Invalid parameter for 'followers'. Expected str|int, got {}".format(
                 type(userId).__name__)
             )
         if isinstance(count, str):
             count = int(count)
         elif not isinstance(count, int):
-            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+            raise TypeError("Invalid parameter for 'followers'. Expected int, got {}".format(
                 type(count).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'allmedia'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1661,26 +1818,43 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def blue_verified_followers(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
-        """
+    def blue_verified_followers(
+            self,
+            userId: str | int,
+            count: Optional[int] = 20,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+        """The function is used to retrieve verified users who follow the specified user and returns the results in the form of a dictionary.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
-            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+            raise TypeError("Invalid parameter for 'blue_verified_followers'. Expected str|int, got {}".format(
                 type(userId).__name__)
             )
         if isinstance(count, str):
             count = int(count)
         elif not isinstance(count, int):
-            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+            raise TypeError("Invalid parameter for 'blue_verified_followers'. Expected int, got {}".format(
                 type(count).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'blue_verified_followers'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1734,26 +1908,43 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def followers_you_know(self, userId: str | int, count: int = 20, proxy=None, **kwargs):
-        """
+    def followers_you_know(
+            self,
+            userId: str | int,
+            count: Optional[int] = 20,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+        """The function is used to retrieve users who follow the specified user and we know who the user is and returns the results in the form of a dictionary.
 
         Arguments :
           - userId (Required) The ID of the rest_id key contained in the search function results.
           - count (Optional) Amount of data.
+          - proxy = (Optional) Used as an intermediary between the client and the server you access. These parameters are an important part of the request configuration and can help you direct traffic through proxy servers that may be needed for various purposes, such as security, anonymity, or access control.
+
+        Keyword Argument:
+          - **kwargs
         """
         if not isinstance(userId, (str | int)):
-            raise TypeError("Invalid parameter for 'following'. Expected str|int, got {}".format(
+            raise TypeError("Invalid parameter for 'followers_you_know'. Expected str|int, got {}".format(
                 type(userId).__name__)
             )
         if isinstance(count, str):
             count = int(count)
         elif not isinstance(count, int):
-            raise TypeError("Invalid parameter for 'following'. Expected int, got {}".format(
+            raise TypeError("Invalid parameter for 'followers_you_know'. Expected int, got {}".format(
                 type(count).__name__)
             )
+        if proxy is not None:
+            if not isinstance(proxy, str):
+                raise TypeError("Invalid parameter for 'followers_you_know'. Expected str, got {}".format(
+                    type(proxy).__name__)
+                )
+
         user_agent = self.__fake.user_agent()
         function_name = Utility.current_funcname()
         params = self.__buildparams(
@@ -1807,10 +1998,11 @@ class XCrawl:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookie = ""
+    cookie = ''
     sb = XCrawl()

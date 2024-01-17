@@ -13,10 +13,12 @@ from faker import Faker
 from datetime import datetime
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
+from typing import Any, Optional
 
 
 class Index:
-    def __init__(self):
+    def __init__(self) -> dict:
         self.session = requests.session()
         self.jar = RequestsCookieJar()
         self.fake = Faker()
@@ -41,7 +43,19 @@ class Index:
             )
         return self.jar
 
-    def newsIndex(self, site, page, year, month, date, daerah=None, proxy=None, cookies=None, **kwargs):
+    def newsIndex(
+            self,
+            site: str,
+            page: int,
+            year: int,
+            month: int,
+            date: int,
+            daerah: Optional[str] = None,
+            proxy: Optional[str] = None,
+            cookies: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
         if cookies:
             cookies = self.__set_cookies(cookies=cookies)
@@ -225,8 +239,9 @@ class Index:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
