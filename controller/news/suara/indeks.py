@@ -6,56 +6,49 @@ import string
 import time
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from datetime import datetime
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class Index:
     def __init__(self):
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def newsIndex(
+            self,
+            page: int,
+            year: int | str,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
 
-    def newsIndex(self, page, year, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+        user_agent = self.__fake.user_agent()
+
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
+
         url = f"https://www.suara.com/indeks/terkini/news/{year}?page={page}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -64,12 +57,12 @@ class Index:
             datas = []
             html = content.decode("utf-8")
             links = []
-            for item in self.parser.pyq_parser(
+            for item in self.__parser.pyq_parser(
                 html,
                 'div[class="base-content"] div[class="content mb-30 static"] div[class="list-item-y-img-retangle"] div[class="item"]'
             ):
                 article_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         item,
                         'div[class="item"] div[class="text-list-item-y"] a'
                     )
@@ -77,7 +70,7 @@ class Index:
                 )
                 links.append(article_link)
             maxpage = (
-                self.parser.pyq_parser(
+                self.__parser.pyq_parser(
                     html,
                     'ul[class="pagination"] li a'
                 )
@@ -87,13 +80,12 @@ class Index:
             maxpage = int(maxpage) if maxpage.isdigit() else 1
             nextpage = page+1 if page < maxpage else ""
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
-                    cookies=cookies,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -101,7 +93,7 @@ class Index:
                 if status_code == 200:
                     html = content.decode("utf-8")
                     title = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="info"] h1'
                         )
@@ -128,7 +120,7 @@ class Index:
                     crawling_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     id = Utility.hashmd5(url=link)
                     lang = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'html'
                         )
@@ -136,7 +128,7 @@ class Index:
                         [:2]
                     )
                     source = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="info"] div[class="head-writer-date"] div[class="writer"] span a[class="colored"]'
                         )
@@ -144,7 +136,7 @@ class Index:
                         .text()
                     )
                     author = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="info"] div[class="head-writer-date"] div[class="writer"] span'
                         )
@@ -153,7 +145,7 @@ class Index:
                     )
                     editor = author
                     reporter = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="info"] div[class="head-writer-date"] div[class="writer"] span'
                         )
@@ -162,14 +154,14 @@ class Index:
                         .text()
                     )
                     image = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'figure[class="img-cover"] picture img'
                         )
                         .attr("src")
                     )
                     remove = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'article[class="detail-content detail-berita"] p strong'
                         )
@@ -177,7 +169,7 @@ class Index:
                         .text()
                     )
                     body_article = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'article[class="detail-content detail-berita"] p'
                         )
@@ -187,12 +179,12 @@ class Index:
                     body_article = Utility.UniqClear(body_article)
                     desc = f"{body_article[:100]}..."
                     tags = []
-                    for li in self.parser.pyq_parser(
+                    for li in self.__parser.pyq_parser(
                         html,
                         'div[class="tag-header"] ul[class="list-tag"] li'
                     ):
                         tag = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 li,
                                 'li a'
                             )
@@ -223,18 +215,19 @@ class Index:
                     }
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Index()

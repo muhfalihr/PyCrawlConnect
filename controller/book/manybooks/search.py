@@ -26,18 +26,6 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
     def __set_sort_by(self, sort_by):
         if sort_by == "title":
             sort_by = "field_title"

@@ -5,18 +5,17 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class Search:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -27,36 +26,35 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
     def __emptyarray(self, data: dict, grid: str):
         field = data.get(grid, [])
         field = [field] if isinstance(field, str) else field
         return field
 
-    def search(self, keyword, category: str, page: int, pagesize: int, proxy=None, cookies=None, **kwargs):
+    def search(
+            self,
+            keyword: str,
+            category: str,
+            page: int,
+            pagesize: int,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+
         keyword = keyword.replace(" ", "+")
+
         page = int(page)
         page = page+1 if page == 0\
             else -page if '-' in str(page) else page
+
         match category:
             case 'all' | 'title' | 'author' | 'subject' | 'isn' | 'publisher' | 'seriestitle':
                 url = f'https://catalog.hathitrust.org/Search/Home?type%5B%5D={category}&lookfor%5B%5D={keyword}&page={page}&pagesize={pagesize}'
             case 'full_text_and_all_fields':
                 url = f'https://babel.hathitrust.org/cgi/ls?q1={keyword}&field1=ocr&a=srchls&ft=ft&lmt=ft&pn={page}'
+
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
             method="GET",
@@ -64,7 +62,6 @@ class Search:
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs
         )
         status_code = resp.status_code
@@ -105,7 +102,6 @@ class Search:
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
-                    cookies=cookies,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -196,18 +192,19 @@ class Search:
                         }
                         datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "next_page": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Search()

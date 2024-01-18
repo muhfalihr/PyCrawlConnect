@@ -5,18 +5,17 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class GetBooks:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -27,24 +26,20 @@ class GetBooks:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def getbooks(
+            self,
+            option: str,
+            id: Optional[str] = None,
+            page: Optional[int] = 1,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
 
-    def getbooks(self, option, id=None, page=1, cookies=None, proxy=None, **kwargs):
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
+
         self.headers["User-Agent"] = user_agent
         match option:
             case 'categories':
@@ -55,7 +50,6 @@ class GetBooks:
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
-                    cookies=cookies,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -85,7 +79,6 @@ class GetBooks:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -197,15 +190,18 @@ class GetBooks:
                             }
                             datas.append(data)
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
                     result = {
                         "result": datas
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
+
             case 'new' | 'top20' | 'popular':
                 url = f'http://www.e-booksdirectory.com/{option}.php'
                 resp = self.session.request(
@@ -214,7 +210,6 @@ class GetBooks:
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
-                    cookies=cookies,
                     **kwargs
                 )
                 status_code1 = resp.status_code
@@ -260,7 +255,6 @@ class GetBooks:
                                 proxies=proxy,
                                 headers=self.headers,
                                 data=data,
-                                cookies=cookies,
                                 **kwargs
                             )
                             status_code2 = resp.status_code
@@ -283,8 +277,9 @@ class GetBooks:
                                 links.append(
                                     f"http://www.e-booksdirectory.com/{a}")
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
 
                     for link in links:
                         resp = self.session.request(
@@ -293,7 +288,6 @@ class GetBooks:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -406,20 +400,23 @@ class GetBooks:
                             }
                             datas.append(data)
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
                     result = {
                         "result": datas,
                         "nextpage": nextpage
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             case _:
                 url = ""
-                raise Exception(
-                    f"Error! status code {resp.status_code} : {resp.reason}")
+                raise HTTPErrorException(
+                    f"Error! status code {resp.status_code} : {resp.reason}"
+                )
 
 
 if __name__ == "__main__":

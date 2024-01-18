@@ -5,16 +5,15 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode, unquote
 from faker import Faker
+from typing import Any, Optional
+from helper.exception import *
 
 
 class Downloader:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
 
         self.headers = dict()
@@ -24,31 +23,17 @@ class Downloader:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def download(self, url: str, proxy: Optional[str] = None, **kwargs):
 
-    def download(self, url, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
 
         self.headers["User-Agent"] = user_agent
         r = self.session.request(
-            "GET",
+            method="GET",
             url=unquote(url),
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs,
         )
         status_code = r.status_code
@@ -64,9 +49,10 @@ class Downloader:
             content_type = r.headers.get("content-type")
             return data, filename, content_type
         else:
-            raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {r.status_code} : {r.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     search = Downloader()

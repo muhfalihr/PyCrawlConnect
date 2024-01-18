@@ -5,53 +5,38 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode, unquote
 from faker import Faker
+from helper.exception import *
+from typing import Any, Optional
 
 
 class Downloader:
     def __init__(self):
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
+        self.__session = requests.session()
+        self.__fake = Faker()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def download(self, bookID: str, proxy: Optional[str] = None, **kwargs) -> Any:
 
-    def download(self, bookID, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+        user_agent = self.__fake.user_agent()
 
-        self.headers["user-agent"] = user_agent
+        self.__headers["user-agent"] = user_agent
 
         url = f"https://www.bookrix.com/Books/Download.html?bookID={bookID}&format=epub"
 
-        r = self.session.request(
+        r = self.__session.request(
             "GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs,
         )
         status_code = r.status_code
@@ -73,9 +58,10 @@ class Downloader:
             content_type = r.headers.get("content-type")
             return data, filename, content_type
         else:
-            raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {r.status_code} : {r.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     search = Downloader()

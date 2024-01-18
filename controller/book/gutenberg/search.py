@@ -5,17 +5,16 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
+from helper.exception import *
 
 
 class Search:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -26,31 +25,26 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
     def __set_search_by(self, search_by):
         search_by = search_by[0] + "." if search_by != "all" else ""
         return search_by
 
     def search(
-        self, keyword, search_by, start_index, proxy=None, cookies=None, **kwargs
-    ):
+        self,
+        keyword: str,
+        search_by: str,
+        start_index: str | int,
+        proxy: Optional[str] = None,
+        **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+
         keyword = keyword.replace(" ", "+")
         search_by = self.__set_search_by(search_by)
+
         url = f"https://www.gutenberg.org/ebooks/search/?query={search_by}{keyword}&submit_search=Search&start_index={start_index}"
+
         self.headers["user-agent"] = user_agent
         r = self.session.request(
             "GET",
@@ -58,7 +52,6 @@ class Search:
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs,
         )
         status_code = r.status_code
@@ -87,7 +80,6 @@ class Search:
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
-                    cookies=cookies,
                     **kwargs,
                 )
                 status_code = r.status_code
@@ -136,8 +128,9 @@ class Search:
                     res.pop("")
                     datas.append(res)
                 else:
-                    raise Exception(
-                        f"Error! status code {r.status_code} : {r.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {r.status_code} : {r.reason}"
+                    )
 
             result = {
                 "result": datas,
@@ -145,10 +138,9 @@ class Search:
             }
             return result
         else:
-            raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+            raise HTTPErrorException(f"Error! status code {r.status_code} : {r.reason}"
+                                     )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Search()
-    sb.search()

@@ -6,8 +6,6 @@ import string
 import time
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from datetime import datetime
@@ -19,29 +17,16 @@ from typing import Any, Optional
 
 class Index:
     def __init__(self) -> dict:
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
-
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def newsIndex(
             self,
@@ -52,27 +37,26 @@ class Index:
             date: int,
             daerah: Optional[str] = None,
             proxy: Optional[str] = None,
-            cookies: Optional[str] = None,
             **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+        user_agent = self.__fake.user_agent()
+
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
+
         if site != "daerah":
             url = f"https://{site}.detik.com/berita/indeks/{page}?date={month}/{date}/{year}"
         else:
             url = f"https://www.detik.com/{daerah}/berita/indeks/{page}?date={month}/{date}/{year}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -81,12 +65,12 @@ class Index:
             datas = []
             html = content.decode("utf-8")
             links = []
-            for article in self.parser.pyq_parser(
+            for article in self.__parser.pyq_parser(
                 html,
                 'div[class="column-9"] div[class="nhl indeks mgb-24"] div[id="indeks-container"] article[class="list-content__item"]'
             ):
                 article_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         article,
                         'div[class="media media--left media--image-radius block-link"] div[class="media__text"] h3[class="media__title"] a[class="media__link"]'
                     )
@@ -94,7 +78,7 @@ class Index:
                 )
                 links.append(article_link)
             maxpage = (
-                self.parser.pyq_parser(
+                self.__parser.pyq_parser(
                     html,
                     'div[class="pagination text-center mgt-16 mgb-16"] a'
                 )
@@ -104,13 +88,12 @@ class Index:
             maxpage = int(maxpage) if maxpage != "" else 1
             nextpage = page+1 if page < maxpage else ""
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
-                    cookies=cookies,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -118,14 +101,14 @@ class Index:
                 if status_code == 200:
                     html = content.decode("utf-8")
                     title = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'article[class="detail"] div[class="detail__header"] h1[class="detail__title"]'
                         )
                         .text()
                     )
                     newstime = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'article[class="detail"] div[class="detail__header"] div[class="detail__date"]'
                         )
@@ -157,7 +140,7 @@ class Index:
                     crawling_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     id = Utility.hashmd5(url=link)
                     lang = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'html'
                         )
@@ -170,7 +153,7 @@ class Index:
                     else:
                         source = "detik.com"
                     author = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'article[class="detail"] div[class="detail__header"] div[class="detail__author"]'
                         )
@@ -181,14 +164,14 @@ class Index:
                     )
                     editor = ""
                     image = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="detail__media"] figure[class="detail__media-image"] img[class="p_img_zoomin img-zoomin"]'
                         )
                         .attr("src")
                     )
                     body_article = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="detail__body-text itp_bodycontent"] p'
                         )
@@ -197,12 +180,12 @@ class Index:
                     body_article = Utility.UniqClear(body_article)
                     desc = f"{body_article[:100]}..."
                     tags = []
-                    for tag in self.parser.pyq_parser(
+                    for tag in self.__parser.pyq_parser(
                         html,
                         'div[class="detail__body-tag mgt-16"] div[class="nav"] a'
                     ):
                         article_tag = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 tag,
                                 'a'
                             )
@@ -231,8 +214,9 @@ class Index:
                     }
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
@@ -245,5 +229,4 @@ class Index:
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Index()

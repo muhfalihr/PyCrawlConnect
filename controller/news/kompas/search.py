@@ -6,8 +6,6 @@ import string
 import time
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from datetime import datetime
@@ -20,29 +18,16 @@ from typing import Any, Optional
 
 class Search:
     def __init__(self) -> dict:
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
-
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def search(
             self,
@@ -50,16 +35,14 @@ class Search:
             site: str,
             date: Optional[str] = None,
             proxy: Optional[str] = None,
-            cookies: Optional[str] = None,
             **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+        user_agent = self.__fake.user_agent()
+
         page = int(page)
-        page = page+1 if page == 0 else -page\
-            if '-' in str(page) else page
+        page = page+1 if page == 0 else -page if '-' in str(page) else page
+
         if date:
             date = datetime.strptime(date, "%Y%m%d")
             batas = datetime.strptime("20130501", "%Y%m%d")
@@ -69,15 +52,15 @@ class Search:
                 date = "2013-05-01"
         else:
             date = datetime.now().strftime("%Y-%m-%d")
+
         url = f"https://indeks.kompas.com/?site={site}&date={date}&page={page}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -85,12 +68,12 @@ class Search:
         if status_code == 200:
             datas = []
             html = content.decode("utf-8")
-            div = self.parser.pyq_parser(
+            div = self.__parser.pyq_parser(
                 html,
                 'div[class="row mt2 col-offset-fluid clearfix"]'
             )
             maxpage = (
-                self.parser.pyq_parser(
+                self.__parser.pyq_parser(
                     div,
                     'div[class="paging__wrap clearfix"] div[class="paging__item"] a[class="paging__link paging__link--prev"]'
                 )
@@ -102,12 +85,12 @@ class Search:
                 maxpage = 1
             nextpage = page+1 if page < maxpage else ""
             links = []
-            for a in self.parser.pyq_parser(
+            for a in self.__parser.pyq_parser(
                 div,
                 'div[class="latest--indeks mt2 clearfix"] div[class="article__list clearfix"]'
             ):
                 artcile_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         a,
                         'a[class="article__link"]'
                     )
@@ -116,13 +99,12 @@ class Search:
                 artcile_link = f"{artcile_link}?page=all"
                 links.append(artcile_link)
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
-                    cookies=cookies,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -130,7 +112,7 @@ class Search:
                 if status_code == 200:
                     html = content.decode("utf-8")
                     title = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="col-bs10-10"] h1[class="read__title"]'
                         )
@@ -143,7 +125,7 @@ class Search:
                             .replace("/", "")
                         )
                     except:
-                        newsdatetime = self.parser.pyq_parser(
+                        newsdatetime = self.__parser.pyq_parser(
                             html,
                             'div[class="col-bs10-10"] div[class="read__time"]'
                         ).remove("a").text()
@@ -169,7 +151,7 @@ class Search:
                     crawling_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     id = Utility.hashmd5(url=link)
                     source = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="read__credit top clearfix"] div[class="read__credit__item"] a'
                         )
@@ -177,14 +159,14 @@ class Search:
                     )
                     if source == "":
                         source = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 html,
                                 'div[class="read__header col-offset-fluid clearfix"] div[class="read__time"] a'
                             )
                             .text()
                         )
                     author = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="col-bs10-10"] div[class="credit"] div[class="credit-title-name"] h6'
                         )
@@ -193,7 +175,7 @@ class Search:
                         .rstrip(",")
                     )
                     editor = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="col-bs10-10"] div[class="credit"] div[class="credit-title-name"] h6'
                         )
@@ -201,14 +183,14 @@ class Search:
                         .text()
                     )
                     image = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="cover-photo -gallery"] div[class="photo__wrap"] img'
                         )
                         .attr("src")
                     )
                     image = image if image else (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="cover-photo -gallery"] div[class="photo__wrap"] img'
                         )
@@ -216,7 +198,7 @@ class Search:
                     )
                     image = image if image else ""
                     body_article = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="read__content"] div[class="clearfix"]'
                         )
@@ -229,7 +211,7 @@ class Search:
                     )
                     if body_article == "":
                         body_article = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 html,
                                 'div[class="read__content clearfix"] div[class="clearfix"]'
                             )
@@ -248,7 +230,7 @@ class Search:
                         .lstrip()
                     )
                     lang = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'html'
                         )
@@ -257,12 +239,12 @@ class Search:
                     lang = lang if lang else detect(body_article)
                     desc = f"{body_article[:100]}..."
                     tags = []
-                    for tag in self.parser.pyq_parser(
+                    for tag in self.__parser.pyq_parser(
                         html,
                         'h3[class="tag tag--article clearfix"] ul[class="tag__article__wrap"] li[class="tag__article__item"]'
                     ):
                         tag_article = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 tag,
                                 'a[class="tag__article__link"]'
                             )
@@ -307,5 +289,4 @@ class Search:
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Search()

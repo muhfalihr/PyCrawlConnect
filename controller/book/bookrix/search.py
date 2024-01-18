@@ -9,48 +9,45 @@ from requests.cookies import RequestsCookieJar
 from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
+from helper.exception import *
 
 
 class Search:
     def __init__(self):
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def search(
+            self,
+            keyword: Optional[str] = "",
+            page: Optional[int] = 1,
+            proxy: Optional[str] = None,
+            cookies: Optional[str] = None,
+            **kwargs
+    ) -> dict:
 
-    def search(self, keyword="", page=1, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+        user_agent = self.__fake.user_agent()
+
         keyword = keyword.replace(" ", "%20")
         url = f"https://www.bookrix.com/search;keywords:{keyword},searchoption:books,page:{page}.html"
-        self.headers["user-agent"] = user_agent
-        r = self.session.request(
+
+        self.__headers["user-agent"] = user_agent
+        r = self.__session.request(
             "GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             cookies=cookies,
             **kwargs,
         )
@@ -60,7 +57,7 @@ class Search:
             datas = []
             html = data.decode("utf-8")
             try:
-                next_page = self.parser.pyq_parser(html, 'li[class="next"] a').attr(
+                next_page = self.__parser.pyq_parser(html, 'li[class="next"] a').attr(
                     "href"
                 )
                 next_page = re.sub(".*page:", "", next_page)
@@ -68,44 +65,44 @@ class Search:
             except:
                 next_page = ""
 
-            data = self.parser.pyq_parser(
+            data = self.__parser.pyq_parser(
                 html, '[class="listView books"] [class="item"]'
             )
             for div in data:
-                bookID = self.parser.pyq_parser(div, "img").attr("src")
+                bookID = self.__parser.pyq_parser(div, "img").attr("src")
                 bookID = re.sub(".*p=", "", bookID)
-                title = self.parser.pyq_parser(
+                title = self.__parser.pyq_parser(
                     div, '[class="item-title"]').text()
-                links = self.parser.pyq_parser(div, "a").attr("href")
+                links = self.__parser.pyq_parser(div, "a").attr("href")
                 links = f"https://www.bookrix.com{links}"
-                author = self.parser.pyq_parser(
+                author = self.__parser.pyq_parser(
                     div, '[class="item-author"]').text()
-                genre = self.parser.pyq_parser(
+                genre = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(1)'
                 ).text()
-                language = self.parser.pyq_parser(
+                language = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(2)'
                 ).text()
-                count_words = self.parser.pyq_parser(
+                count_words = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(3)'
                 ).text()
-                rating = self.parser.pyq_parser(
+                rating = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(4)'
                 ).text()
-                views = self.parser.pyq_parser(
+                views = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(5)'
                 ).text()
-                favorites = self.parser.pyq_parser(
+                favorites = self.__parser.pyq_parser(
                     div, '[class="item-details"] li:nth-child(6)'
                 ).text()
-                description = self.parser.pyq_parser(
+                description = self.__parser.pyq_parser(
                     div, '[class="item-description hyphenate"]'
                 ).text()
                 keywords = []
-                for k in self.parser.pyq_parser(div, '[class="item-keywords"] a'):
-                    key = self.parser.pyq_parser(k, "a").text()
+                for k in self.__parser.pyq_parser(div, '[class="item-keywords"] a'):
+                    key = self.__parser.pyq_parser(k, "a").text()
                     keywords.append(key)
-                price = self.parser.pyq_parser(
+                price = self.__parser.pyq_parser(
                     div, '[class="item-price"]').text()
                 data = {
                     "bookID": bookID,
@@ -129,10 +126,10 @@ class Search:
             }
             return result
         else:
-            raise Exception(f"Error! status code {r.status_code} : {r.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {r.status_code} : {r.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Search()
-    print(sb.search())

@@ -9,14 +9,15 @@ from requests.cookies import RequestsCookieJar
 from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class All:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -27,19 +28,7 @@ class All:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
-    def __datarow(self, parent: bytes, eq: int):
+    def __datarow(self, parent: bytes, eq: int) -> str:
         field = (
             self.parser.pyq_parser(
                 parent,
@@ -51,10 +40,10 @@ class All:
         field.find("strong").remove()
         return field.text().lstrip(': ').replace('n/a', '').replace('N/A', '')
 
-    def __allbooks(self, url, page, proxy=None, cookies=None, **kwargs):
+    def __allbooks(self, url: str, page: int, proxy: Optional[str] = None, **kwargs) -> dict:
+
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
             method="GET",
@@ -62,7 +51,6 @@ class All:
             headers=self.headers,
             timeout=60,
             proxies=proxy,
-            cookies=cookies,
             **kwargs
         )
         status_code = resp.status_code
@@ -108,7 +96,6 @@ class All:
                     headers=self.headers,
                     timeout=60,
                     proxies=proxy,
-                    cookies=cookies,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -216,18 +203,29 @@ class All:
                     }
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def all(self, option=None, page=1, allbook=False, idlink=None, proxy=None, cookies=None, **kwargs):
+    def all(
+            self,
+            option: Optional[str] = None,
+            page: Optional[int] = 1,
+            allbook: Optional[bool] = False,
+            idlink: Optional[str] = None,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
         if cookies:
             cookies = self.__set_cookies(cookies=cookies)
@@ -300,8 +298,9 @@ class All:
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
 
             case "authors":
                 url = f"http://www.freetechbooks.com/authors?page={page}"
@@ -405,8 +404,9 @@ class All:
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
 
             case "publishers":
                 url = f"http://www.freetechbooks.com/publishers?page={page}"
@@ -499,8 +499,9 @@ class All:
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             case "licenses":
                 url = f"http://www.freetechbooks.com/licenses?page={page}"
                 resp = self.session.request(
@@ -592,8 +593,9 @@ class All:
                     }
                     return result
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
 
         match allbook:
             case True:
@@ -608,4 +610,4 @@ class All:
 
 
 if __name__ == "__main__":
-    a = All()
+    sb = All()

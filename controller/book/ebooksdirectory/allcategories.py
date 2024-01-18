@@ -5,17 +5,16 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
+from helper.exception import *
 
 
 class AllCategories:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -26,22 +25,10 @@ class AllCategories:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def allcategories(self, proxy: Optional[str] = None, **kwargs):
 
-    def allcategories(self, cookies=None, proxy=None, **kwargs):
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+
         url = 'http://www.e-booksdirectory.com'
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
@@ -50,7 +37,6 @@ class AllCategories:
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs
         )
         status_code = resp.status_code
@@ -101,8 +87,9 @@ class AllCategories:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":

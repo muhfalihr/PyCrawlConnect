@@ -5,18 +5,17 @@ import random
 import string
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
+from typing import Any, Optional
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class Search:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -27,22 +26,19 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
+    def search(
+            self,
+            keyword: str,
+            page: int,
+            pubdate: str,
+            sortby: str,
+            contenttype: str,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
 
-    def search(self, keyword, page, pubdate, sortby, contenttype, proxy=None, cookies=None, **kwargs):
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+
         keyword = keyword.replace(" ", "+")
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
@@ -62,7 +58,6 @@ class Search:
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs
         )
         status_code = resp.status_code
@@ -106,7 +101,6 @@ class Search:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -409,7 +403,6 @@ class Search:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -605,8 +598,9 @@ class Search:
                             }
                             datas.append(data)
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
                 case "Article":
                     for link in links:
                         resp = self.session.request(
@@ -615,7 +609,6 @@ class Search:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -794,8 +787,9 @@ class Search:
                             }
                             datas.append(data)
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
                 case "ConferencePaper" | "ReferenceWorkEntry":
                     for link in links:
                         resp = self.session.request(
@@ -804,7 +798,6 @@ class Search:
                             timeout=60,
                             proxies=proxy,
                             headers=self.headers,
-                            cookies=cookies,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -990,8 +983,9 @@ class Search:
                             }
                             datas.append(data)
                         else:
-                            raise Exception(
-                                f"Error! status code {resp.status_code} : {resp.reason}")
+                            raise HTTPErrorException(
+                                f"Error! status code {resp.status_code} : {resp.reason}"
+                            )
                 case "BookSeries":
                     ids = [
                         re.search(r'/bookseries/(.*$)', id).group(1)
@@ -1029,20 +1023,28 @@ class Search:
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 class BooksSeries(Search):
     def __init__(self):
         super().__init__()
 
-    def books(self, id, page, proxy=None, cookies=None, **kwargs):
+    def books(
+            self,
+            id: str,
+            page: int,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.set_cookies(cookies=cookies)
+
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
+
         url = f"https://www.springer.com/series/{id}/books?page={page}"
         self.headers["User-Agent"] = user_agent
         resp = self.session.request(
@@ -1051,7 +1053,6 @@ class BooksSeries(Search):
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs
         )
         status_code = resp.status_code
@@ -1095,7 +1096,6 @@ class BooksSeries(Search):
                     timeout=60,
                     proxies=proxy,
                     headers=self.headers,
-                    cookies=cookies,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -1342,7 +1342,7 @@ class BooksSeries(Search):
                         "Edition Number", "")
                     numpage = biblo_info.get("Number of Pages", "")
                     topics = biblo_info.get("Topics", [])
-                    
+
                     data = {
                         "id": data_id,
                         "url": link,
@@ -1389,17 +1389,18 @@ class BooksSeries(Search):
                     }
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
-
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":

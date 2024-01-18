@@ -1,6 +1,3 @@
-import unicodedata
-import pytz
-import hashlib
 import requests
 import re
 import json
@@ -9,44 +6,31 @@ import string
 import time
 
 from pyquery import PyQuery
-from requests.cookies import RequestsCookieJar
-from requests.exceptions import Timeout, ReadTimeout
 from urllib.parse import urljoin, urlencode
 from faker import Faker
 from datetime import datetime
+from typing import Any, Optional
 from googletrans import Translator
 from helper.html_parser import HtmlParser
 from helper.utility import Utility
+from helper.exception import *
 
 
 class SearchFilter:
     def __init__(self):
-        self.session = requests.session()
-        self.jar = RequestsCookieJar()
-        self.fake = Faker()
-        self.parser = HtmlParser()
-        self.translator = Translator()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
+        self.__translator = Translator()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
-    def __regex(self, text, field):
+    def __regex(self, text: str, field: str) -> str:
         try:
             match field:
                 case "title":
@@ -77,7 +61,7 @@ class SearchFilter:
         except Exception:
             return text
 
-    def strtodate(self, text: str, field: str):
+    def strtodate(self, text: str, field: str) -> str:
         try:
             if field == "published":
                 date = datetime.strptime(text, "%B %d, %Y")
@@ -89,20 +73,21 @@ class SearchFilter:
         except Exception:
             return text
 
-    def search(self, keyword: str, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+    def search(self, keyword: str, proxy: str = None, **kwargs) -> dict:
+
+        user_agent = self.__fake.user_agent()
+
         keyword = keyword.replace(" ", "+")
+
         url = f"https://tv2.lk21official.co/search.php?s={keyword}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -111,19 +96,19 @@ class SearchFilter:
             datas = []
             html = content.decode("utf-8")
             links = []
-            for searchitem in self.parser.pyq_parser(
+            for searchitem in self.__parser.pyq_parser(
                 html,
                 'div[class="search-wrapper"] div[class="search-item"]'
             ):
                 searchitem_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         searchitem,
                         'div[class="col-xs-9 col-sm-10 search-content"] h3 a'
                     )
                     .attr("href")
                 )
                 title_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         searchitem,
                         'div[class="col-xs-9 col-sm-10 search-content"] h3 a'
                     )
@@ -137,13 +122,12 @@ class SearchFilter:
                 links.append(searchitem_link)
             links = Utility.makeunique(links)
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
-                    cookies=cookies,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -152,7 +136,7 @@ class SearchFilter:
                     html = content.decode("utf-8")
                     id = Utility.hashmd5(url=link)
                     title = self.__regex(
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="container"] h1'
                         )
@@ -161,7 +145,7 @@ class SearchFilter:
                     )
                     title = title if title else ""
                     synopsis = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="col-xs-9 content"] blockquote'
                         )
@@ -172,7 +156,7 @@ class SearchFilter:
                         .replace("\n", " ")
                     )
                     site = self.__regex(
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="download-movie"] a'
                         )
@@ -186,7 +170,7 @@ class SearchFilter:
                     else:
                         site_downloader = ""
 
-                    image = self.parser.pyq_parser(
+                    image = self.__parser.pyq_parser(
                         html,
                         'div[class="col-xs-3 content-poster"] img[class="img-thumbnail"]'
                     ).attr("src")
@@ -226,18 +210,18 @@ class SearchFilter:
                     }
 
                     h2_list = []
-                    for h2 in self.parser.pyq_parser(
+                    for h2 in self.__parser.pyq_parser(
                         html,
                         'div[class="col-xs-9 content"] div'
                     ):
                         h2_text = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 h2,
                                 'div h2'
                             )
                             .text()
                         )
-                        h2_text = self.translator.translate(
+                        h2_text = self.__translator.translate(
                             h2_text, dest='en', src='id'
                         ).text.lower()
                         h2_list.append(h2_text)
@@ -245,12 +229,12 @@ class SearchFilter:
                         match value:
                             case "movie star":
                                 parser_list = []
-                                for h3 in self.parser.pyq_parser(
+                                for h3 in self.__parser.pyq_parser(
                                     html,
                                     'div[class="col-xs-9 content"] div'
                                 ).eq(index).find("h3"):
                                     parser = (
-                                        self.parser.pyq_parser(
+                                        self.__parser.pyq_parser(
                                             h3,
                                             'h3 a'
                                         )
@@ -261,12 +245,12 @@ class SearchFilter:
 
                             case "genre" | "country":
                                 parser_list = []
-                                for h3 in self.parser.pyq_parser(
+                                for h3 in self.__parser.pyq_parser(
                                     html,
                                     'div[class="col-xs-9 content"] div'
                                 ).eq(index).find("a"):
                                     parser = (
-                                        self.parser.pyq_parser(
+                                        self.__parser.pyq_parser(
                                             h3,
                                             'a'
                                         )
@@ -279,7 +263,7 @@ class SearchFilter:
 
                             case "imdb":
                                 parser = (
-                                    self.parser.pyq_parser(
+                                    self.__parser.pyq_parser(
                                         html,
                                         'div[class="col-xs-9 content"] div'
                                     )
@@ -291,7 +275,7 @@ class SearchFilter:
 
                             case _:
                                 parser = (
-                                    self.parser.pyq_parser(
+                                    self.__parser.pyq_parser(
                                         html,
                                         'div[class="col-xs-9 content"] div'
                                     )
@@ -314,38 +298,52 @@ class SearchFilter:
 
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
-    def filter(self, orderby, order, page, type=None, genre1=None, genre2=None, country=None, year=None, hdonly=0, proxy=None, cookies=None, **kwargs):
-        user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+    def filter(
+            self,
+            orderby: str,
+            order: str,
+            page: int,
+            type: Optional[str] = None,
+            genre1: Optional[str] = None,
+            genre2: Optional[str] = None,
+            country: Optional[str] = None,
+            year: Optional[str | int] = None,
+            hdonly: Optional[int] = 0,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
+        user_agent = self.__fake.user_agent()
+
         type = type if type else 0
         genre1 = genre1 if genre1 else 0
         genre2 = genre2 if genre2 else 0
         country = country if country else 0
         year = year if year else 0
         page = int(page)
-        page = page+1 if page == 0 else -page\
-            if '-' in str(page) else page
+        page = page+1 if page == 0 else -page if '-' in str(page) else page
 
         url = f"https://tv6.lk21official.wiki/{orderby}/page/{page}/?order={order}&type={type}&genre1={genre1}&genre2={genre2}&country={country}&tahun={year}&hdonly={hdonly}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
-            cookies=cookies,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -354,19 +352,19 @@ class SearchFilter:
             datas = []
             html = content.decode("utf-8")
             links = []
-            for filteritem in self.parser.pyq_parser(
+            for filteritem in self.__parser.pyq_parser(
                 html,
                 'div[class="grid-archive"] div[id="grid-wrapper"] div'
             ):
                 filteritem_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         filteritem,
                         'div article header[class="grid-header"] h1[class="grid-title"] a'
                     )
                     .attr("href")
                 )
                 title_link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         filteritem,
                         'div article footer[class="grid-action"] p'
                     )
@@ -386,7 +384,7 @@ class SearchFilter:
 
                 links = Utility.makeunique(links)
             maxpage = self.__regex(
-                self.parser.pyq_parser(
+                self.__parser.pyq_parser(
                     html,
                     'div[class="col-lg-9 col-sm-8"] header[class="archive-header"] h3'
                 )
@@ -395,13 +393,12 @@ class SearchFilter:
             )
             nextpage = page+1 if page < maxpage else ""
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
-                    cookies=cookies,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -413,7 +410,7 @@ class SearchFilter:
                     id = Utility.hashmd5(url=link)
                     if type == "2":
                         title = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 html,
                                 'section[class="breadcrumb"] div[class="container"] li[class="last"] span[itemprop="name"]'
                             )
@@ -421,7 +418,7 @@ class SearchFilter:
                         )
                     else:
                         title = self.__regex(
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 html,
                                 'div[class="container"] h1'
                             )
@@ -429,7 +426,7 @@ class SearchFilter:
                             "title"
                         )
                     synopsis = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html,
                             'div[class="col-xs-9 content"] blockquote'
                         )
@@ -440,7 +437,7 @@ class SearchFilter:
                         .replace("\n", " ")
                     )
 
-                    image = self.parser.pyq_parser(
+                    image = self.__parser.pyq_parser(
                         html,
                         'div[class="col-xs-3 content-poster"] img[class="img-thumbnail"]'
                     ).attr("src")
@@ -485,12 +482,12 @@ class SearchFilter:
                         del data["translator"]
 
                     h2_list = []
-                    for h2 in self.parser.pyq_parser(
+                    for h2 in self.__parser.pyq_parser(
                         html,
                         'div[class="col-xs-9 content"] div'
                     ):
-                        h2_text = self.translator.translate(
-                            self.parser.pyq_parser(
+                        h2_text = self.__translator.translate(
+                            self.__parser.pyq_parser(
                                 h2,
                                 'div h2'
                             )
@@ -504,12 +501,12 @@ class SearchFilter:
                         match value:
                             case "movie star":
                                 parser_list = []
-                                for h3 in self.parser.pyq_parser(
+                                for h3 in self.__parser.pyq_parser(
                                     html,
                                     'div[class="col-xs-9 content"] div'
                                 ).eq(index).find("h3"):
                                     parser = (
-                                        self.parser.pyq_parser(
+                                        self.__parser.pyq_parser(
                                             h3,
                                             'h3 a'
                                         )
@@ -520,12 +517,12 @@ class SearchFilter:
 
                             case "genre" | "country":
                                 parser_list = []
-                                for h3 in self.parser.pyq_parser(
+                                for h3 in self.__parser.pyq_parser(
                                     html,
                                     'div[class="col-xs-9 content"] div'
                                 ).eq(index).find("a"):
                                     parser = (
-                                        self.parser.pyq_parser(
+                                        self.__parser.pyq_parser(
                                             h3,
                                             'a'
                                         )
@@ -538,7 +535,7 @@ class SearchFilter:
 
                             case "imdb":
                                 parser = (
-                                    self.parser.pyq_parser(
+                                    self.__parser.pyq_parser(
                                         html,
                                         'div[class="col-xs-9 content"] div'
                                     )
@@ -550,7 +547,7 @@ class SearchFilter:
 
                             case _:
                                 parser = (
-                                    self.parser.pyq_parser(
+                                    self.__parser.pyq_parser(
                                         html,
                                         'div[class="col-xs-9 content"] div'
                                     )
@@ -572,18 +569,19 @@ class SearchFilter:
                                 data.update({value: parser})
                     datas.append(data)
                 else:
-                    raise Exception(
-                        f"Error! status code {resp.status_code} : {resp.reason}")
+                    raise HTTPErrorException(
+                        f"Error! status code {resp.status_code} : {resp.reason}"
+                    )
             result = {
                 "result": datas,
                 "nextpage": nextpage
             }
             return result
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = SearchFilter()

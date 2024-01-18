@@ -1,16 +1,16 @@
 import requests
 
-from requests.cookies import RequestsCookieJar
 from faker import Faker
 from datetime import datetime
+from typing import Any, Optional
 from json import loads
 from helper.html_parser import HtmlParser
+from helper.exception import *
 
 
 class Search:
     def __init__(self):
         self.session = requests.session()
-        self.jar = RequestsCookieJar()
         self.fake = Faker()
         self.parser = HtmlParser()
 
@@ -21,19 +21,7 @@ class Search:
         self.headers["Sec-Fetch-Mode"] = "cors"
         self.headers["Sec-Fetch-Site"] = "same-site"
 
-    def __set_cookies(self, cookies):
-        for cookie in cookies:
-            if cookie["name"] == "msToken":
-                msToken = cookie["value"]
-            self.jar.set(
-                cookie["name"],
-                cookie["value"],
-                domain=cookie["domain"],
-                path=cookie["path"],
-            )
-        return self.jar
-
-    def __set_pubdate(self, start, end):
+    def __set_pubdate(self, start: str, end: str) -> str:
         if start != None:
             start = start if "-" in start\
                 else datetime.strptime(start, "%Y/%m/%d").strftime("%Y-%m-%d")\
@@ -56,10 +44,21 @@ class Search:
         else:
             return "", ""
 
-    def search(self, keyword=None, category="everything", filterstartdate=None, filterenddate=None, sizepage=15, sortby="RELEVANCE", page=1, proxy=None, cookies=None, **kwargs):
+    def search(
+            self,
+            keyword: Optional[str] = None,
+            category: Optional[str] = "everything",
+            filterstartdate: Optional[str] = None,
+            filterenddate: Optional[str] = None,
+            sizepage: Optional[int] = 15,
+            sortby: Optional[str] = "RELEVANCE",
+            page: Optional[int] = 1,
+            proxy: Optional[str] = None,
+            **kwargs
+    ) -> dict:
+
         user_agent = self.fake.user_agent()
-        if cookies:
-            cookies = self.__set_cookies(cookies=cookies)
+
         keyword = keyword.replace(" ", "%20")
         sortby = f"&sortOrder={sortby}"
         start, end = self.__set_pubdate(filterstartdate, filterenddate)
@@ -78,7 +77,6 @@ class Search:
             timeout=60,
             proxies=proxy,
             headers=self.headers,
-            cookies=cookies,
             **kwargs
         )
 
@@ -123,10 +121,10 @@ class Search:
             }
             return results
         else:
-            raise Exception(
-                f"Error! status code {resp.status_code} : {resp.reason}")
+            raise HTTPErrorException(
+                f"Error! status code {resp.status_code} : {resp.reason}"
+            )
 
 
 if __name__ == "__main__":
-    cookies = []
     sb = Search()
