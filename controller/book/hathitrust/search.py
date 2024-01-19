@@ -15,16 +15,16 @@ from helper.exception import *
 
 class Search:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def __emptyarray(self, data: dict, grid: str):
         field = data.get(grid, [])
@@ -41,7 +41,7 @@ class Search:
             **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         keyword = keyword.replace(" ", "+")
 
@@ -55,13 +55,13 @@ class Search:
             case 'full_text_and_all_fields':
                 url = f'https://babel.hathitrust.org/cgi/ls?q1={keyword}&field1=ocr&a=srchls&ft=ft&lmt=ft&pn={page}'
 
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -70,7 +70,7 @@ class Search:
             datas = []
             html = content.decode("utf-8")
             maxpage = (
-                self.parser.pyq_parser(
+                self.__parser.pyq_parser(
                     html,
                     'hathi-results-pagination'
                 )
@@ -79,14 +79,14 @@ class Search:
             maxpage = int(maxpage)
             nextpage = page+1 if page < maxpage else ""
 
-            data = self.parser.pyq_parser(
+            data = self.__parser.pyq_parser(
                 html=html,
                 selector='[class="results-container"] [class="record d-flex gap-3 p-3 mb-3 mt-3 shadow-sm"]'
             )
             links = []
             for raw in data:
                 link = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         raw,
                         '[class="list-group-item list-group-item-action w-sm-50"]'
                     )
@@ -96,37 +96,37 @@ class Search:
                 links.append(link)
 
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
                 content = resp.content
                 if status_code == 200:
                     html = content.decode("utf-8")
-                    data = self.parser.pyq_parser(
+                    data = self.__parser.pyq_parser(
                         html,
                         'article[class="record d-flex flex-column gap-3 p-3 mb-3 mt-3"]'
                     )
                     id = Utility.hashmd5(url=link)
                     for raw in data:
                         title = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 raw,
                                 '[class="article-heading d-flex gap-3"]'
                             )
                             .text()
                             .replace("\n", "")
                         )
-                        metadata = self.parser.pyq_parser(
+                        metadata = self.__parser.pyq_parser(
                             raw,
                             '[class="metadata"] [class="grid"]'
                         )
-                        atag = self.parser.pyq_parser(
+                        atag = self.__parser.pyq_parser(
                             raw,
                             '[class="grid"] [class="g-col-lg-8 g-col-12"] a[data-toggle="tracking"]'
                         )
@@ -134,7 +134,7 @@ class Search:
                         alist = []
                         for a in atag:
                             origin_site = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     a,
                                     'a'
                                 )
@@ -146,7 +146,7 @@ class Search:
 
                         for grid in metadata:
                             key = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     grid,
                                     '[class="g-col-lg-4 g-col-12"]'
                                 )
@@ -155,7 +155,7 @@ class Search:
                                 .lstrip()
                             )
                             key = re.sub(r'\(s\)', '', key)
-                            value = self.parser.pyq_parser(
+                            value = self.__parser.pyq_parser(
                                 grid,
                                 '[class="g-col-lg-8 g-col-12"]'
                             )

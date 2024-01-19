@@ -15,16 +15,16 @@ from helper.exception import *
 
 class GetBooks:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def getbooks(
             self,
@@ -35,21 +35,21 @@ class GetBooks:
             **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
 
-        self.headers["User-Agent"] = user_agent
+        self.__headers["User-Agent"] = user_agent
         match option:
             case 'categories':
                 url = f'http://www.e-booksdirectory.com/listing.php?category={id}'
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=url,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code = resp.status_code
@@ -58,13 +58,13 @@ class GetBooks:
                     datas = []
                     html = content.decode('utf-8')
                     links = []
-                    tag_a = self.parser.pyq_parser(
+                    tag_a = self.__parser.pyq_parser(
                         html,
                         '[class="dir_books"] [class="img_list"] a'
                     )
                     for link in tag_a:
                         a = (
-                            self.parser.pyq_parser(
+                            self.__parser.pyq_parser(
                                 link,
                                 'a'
                             )
@@ -73,12 +73,12 @@ class GetBooks:
                         links.append(f"http://www.e-booksdirectory.com/{a}")
 
                     for link in links:
-                        resp = self.session.request(
+                        resp = self.__session.request(
                             method="GET",
                             url=link,
                             timeout=60,
                             proxies=proxy,
-                            headers=self.headers,
+                            headers=self.__headers,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -86,19 +86,19 @@ class GetBooks:
                         if status_code == 200:
                             html = content.decode('utf-8')
                             data_id = Utility.hashmd5(url=link)
-                            detail_book = self.parser.pyq_parser(
+                            detail_book = self.__parser.pyq_parser(
                                 html,
                                 'article[itemtype="http://schema.org/Book"] p'
                             )
                             title = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'strong[itemprop="name"]'
                                 )
                                 .text()
                             )
                             img = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'img[itemprop="image"]'
                                 )
@@ -106,28 +106,28 @@ class GetBooks:
                             )
                             img = f"http://www.e-booksdirectory.com/{img}"
                             author = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="author"]'
                                 )
                                 .text()
                             )
                             publisher = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="publisher"] span[itemprop="name"]'
                                 )
                                 .text()
                             )
                             datePublished = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="datePublished"]'
                                 )
                                 .text()
                             )
                             isbnasin = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="isbn"]'
                                 )
@@ -135,7 +135,7 @@ class GetBooks:
                                 .text()
                             )
                             isbn13 = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="isbn"]'
                                 )
@@ -143,21 +143,21 @@ class GetBooks:
                                 .text()
                             )
                             numpage = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="numberOfPages"]'
                                 )
                                 .text()
                             )
                             desc = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="description"]'
                                 )
                                 .text()
                             )
                             originsite = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'a[target="_blank"]'
                                 )
@@ -165,7 +165,7 @@ class GetBooks:
                                 .attr('href')
                             )
                             originsite_h = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'a[target="_blank"]'
                                 )
@@ -204,12 +204,12 @@ class GetBooks:
 
             case 'new' | 'top20' | 'popular':
                 url = f'http://www.e-booksdirectory.com/{option}.php'
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=url,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
+                    headers=self.__headers,
                     **kwargs
                 )
                 status_code1 = resp.status_code
@@ -218,7 +218,7 @@ class GetBooks:
                     datas = []
                     html1 = content1.decode('utf-8')
                     maxpage = (
-                        self.parser.pyq_parser(
+                        self.__parser.pyq_parser(
                             html1,
                             'input[value="Next"]'
                         )
@@ -228,13 +228,13 @@ class GetBooks:
 
                     links = []
                     if page == 1:
-                        tag_a1 = self.parser.pyq_parser(
+                        tag_a1 = self.__parser.pyq_parser(
                             html1,
                             '[class="img_list"] a'
                         )
                         for link in tag_a1:
                             a = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     link,
                                     'a'
                                 )
@@ -249,11 +249,11 @@ class GetBooks:
                                 "submit": "Next",
                                 "startid": f"{0+num}"
                             }
-                            resp = self.session.post(
+                            resp = self.__session.post(
                                 url=url,
                                 timeout=60,
                                 proxies=proxy,
-                                headers=self.headers,
+                                headers=self.__headers,
                                 data=data,
                                 **kwargs
                             )
@@ -262,13 +262,13 @@ class GetBooks:
                             num += 20
                         if status_code2 == 200:
                             html2 = content2.decode('utf-8')
-                            tag_a2 = self.parser.pyq_parser(
+                            tag_a2 = self.__parser.pyq_parser(
                                 html2,
                                 '[class="img_list"] a'
                             )
                             for link in tag_a2:
                                 a = (
-                                    self.parser.pyq_parser(
+                                    self.__parser.pyq_parser(
                                         link,
                                         'a'
                                     )
@@ -282,12 +282,12 @@ class GetBooks:
                             )
 
                     for link in links:
-                        resp = self.session.request(
+                        resp = self.__session.request(
                             method="GET",
                             url=link,
                             timeout=60,
                             proxies=proxy,
-                            headers=self.headers,
+                            headers=self.__headers,
                             **kwargs
                         )
                         status_code = resp.status_code
@@ -295,19 +295,19 @@ class GetBooks:
                         if status_code == 200:
                             html = content.decode('utf-8')
                             data_id = Utility.hashmd5(url=link)
-                            detail_book = self.parser.pyq_parser(
+                            detail_book = self.__parser.pyq_parser(
                                 html,
                                 'article[itemtype="http://schema.org/Book"] p'
                             )
                             title = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'strong[itemprop="name"]'
                                 )
                                 .text()
                             )
                             img = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'img[itemprop="image"]'
                                 )
@@ -315,28 +315,28 @@ class GetBooks:
                             )
                             img = f"http://www.e-booksdirectory.com/{img}"
                             author = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="author"]'
                                 )
                                 .text()
                             )
                             publisher = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="publisher"] span[itemprop="name"]'
                                 )
                                 .text()
                             )
                             datePublished = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="datePublished"]'
                                 )
                                 .text()
                             )
                             isbnasin = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="isbn"]'
                                 )
@@ -344,7 +344,7 @@ class GetBooks:
                                 .text()
                             )
                             isbn13 = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="isbn"]'
                                 )
@@ -352,21 +352,21 @@ class GetBooks:
                                 .text()
                             )
                             numpage = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="numberOfPages"]'
                                 )
                                 .text()
                             )
                             desc = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'span[itemprop="description"]'
                                 )
                                 .text()
                             )
                             originsite = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'a[target="_blank"]'
                                 )
@@ -374,7 +374,7 @@ class GetBooks:
                                 .attr('href')
                             )
                             originsite_h = (
-                                self.parser.pyq_parser(
+                                self.__parser.pyq_parser(
                                     detail_book,
                                     'a[target="_blank"]'
                                 )

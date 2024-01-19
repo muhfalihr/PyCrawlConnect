@@ -10,16 +10,16 @@ from helper.exception import *
 
 class Search:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def __set_pubdate(self, start: str, end: str) -> str:
         if start != None:
@@ -57,7 +57,7 @@ class Search:
             **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         keyword = keyword.replace(" ", "%20")
         sortby = f"&sortOrder={sortby}"
@@ -70,13 +70,13 @@ class Search:
             case _:
                 url = f"https://journals.plos.org/plosone/dynamicSearch?{pub_date_filter}resultsPerPage={sizepage}&unformattedQuery={category}%3A{keyword}&q={category}%3A{keyword}{sortby}&page={page}&utm_content=a&utm_campaign=ENG-2397"
 
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
 

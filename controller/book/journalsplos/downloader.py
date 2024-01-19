@@ -13,27 +13,27 @@ from helper.exception import *
 
 class Downloader:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
+        self.__session = requests.session()
+        self.__fake = Faker()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def download(self, url: str, proxy: Optional[str] = None, **kwargs):
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
-        self.headers["User-Agent"] = user_agent
-        r = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        r = self.__session.request(
             method="GET",
             url=unquote(url),
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs,
         )
         status_code = r.status_code

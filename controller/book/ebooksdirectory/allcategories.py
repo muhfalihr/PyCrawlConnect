@@ -14,29 +14,29 @@ from helper.exception import *
 
 class AllCategories:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def allcategories(self, proxy: Optional[str] = None, **kwargs):
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         url = 'http://www.e-booksdirectory.com'
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -45,13 +45,13 @@ class AllCategories:
             datas = []
             html = content.decode('utf-8')
             links = []
-            tag_a = self.parser.pyq_parser(
+            tag_a = self.__parser.pyq_parser(
                 html,
                 'article[class="main_categories"] table tr a'
             )
             for link in tag_a:
                 a = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         link,
                         'a'
                     )
@@ -62,7 +62,7 @@ class AllCategories:
             categories = []
             for name in tag_a:
                 cn = (
-                    self.parser.pyq_parser(
+                    self.__parser.pyq_parser(
                         name,
                         'a'
                     )

@@ -14,16 +14,16 @@ from helper.exception import *
 
 class Search:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def __set_search_by(self, search_by):
         search_by = search_by[0] + "." if search_by != "all" else ""
@@ -38,20 +38,20 @@ class Search:
         **kwargs
     ) -> dict:
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         keyword = keyword.replace(" ", "+")
         search_by = self.__set_search_by(search_by)
 
         url = f"https://www.gutenberg.org/ebooks/search/?query={search_by}{keyword}&submit_search=Search&start_index={start_index}"
 
-        self.headers["user-agent"] = user_agent
-        r = self.session.request(
+        self.__headers["user-agent"] = user_agent
+        r = self.__session.request(
             "GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs,
         )
         status_code = r.status_code
@@ -60,7 +60,7 @@ class Search:
             datas = []
             html = data.decode("utf-8")
             try:
-                next_start_index = self.parser.pyq_parser(
+                next_start_index = self.__parser.pyq_parser(
                     html,
                     'li[class="statusline"] [title="Go to the next page of results."]',
                 ).attr("href")
@@ -69,34 +69,34 @@ class Search:
             except:
                 next_start_index = ""
 
-            books = self.parser.pyq_parser(html, '[class="booklink"]')
+            books = self.__parser.pyq_parser(html, '[class="booklink"]')
             for book in books:
                 book_link = "https://www.gutenberg.org{}".format(
-                    self.parser.pyq_parser(book, "a").attr("href")
+                    self.__parser.pyq_parser(book, "a").attr("href")
                 )
-                r = self.session.request(
+                r = self.__session.request(
                     "GET",
                     url=book_link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
+                    headers=self.__headers,
                     **kwargs,
                 )
                 status_code = r.status_code
                 data = r.content
                 if status_code == 200:
-                    data_detail = self.parser.pyq_parser(
+                    data_detail = self.__parser.pyq_parser(
                         data, '[class="bibrec"]')
                     res = {}
                     list_same_header = []
-                    for tr in self.parser.pyq_parser(data_detail, "tr"):
+                    for tr in self.__parser.pyq_parser(data_detail, "tr"):
                         header = (
-                            self.parser.pyq_parser(tr, f"th")
+                            self.__parser.pyq_parser(tr, f"th")
                             .text()
                             .lower()
                             .replace(" ", "_")
                         )
-                        value = self.parser.pyq_parser(tr, f"td").text()
+                        value = self.__parser.pyq_parser(tr, f"td").text()
                         if header in res and header not in list_same_header:
                             temp = res[header]
                             res[header] = []
@@ -113,11 +113,11 @@ class Search:
                             value = [x.strip(" ") for x in value]
                             res[header] = value
 
-                    download_url = self.parser.pyq_parser(
+                    download_url = self.__parser.pyq_parser(
                         data, '[class="files"] [content="application/pdf"] a'
                     ).attr("href")
                     if download_url == None:
-                        download_url = self.parser.pyq_parser(
+                        download_url = self.__parser.pyq_parser(
                             data, '[class="files"] [content="application/epub+zip"] a'
                         ).attr("href")
 

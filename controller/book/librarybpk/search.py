@@ -15,16 +15,16 @@ from helper.exception import *
 
 class Search:
     def __init__(self):
-        self.session = requests.session()
-        self.fake = Faker()
-        self.parser = HtmlParser()
+        self.__session = requests.session()
+        self.__fake = Faker()
+        self.__parser = HtmlParser()
 
-        self.headers = dict()
-        self.headers["Accept"] = "application/json, text/plain, */*"
-        self.headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-        self.headers["Sec-Fetch-Dest"] = "empty"
-        self.headers["Sec-Fetch-Mode"] = "cors"
-        self.headers["Sec-Fetch-Site"] = "same-site"
+        self.__headers = dict()
+        self.__headers["Accept"] = "application/json, text/plain, */*"
+        self.__headers["Accept-Language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
+        self.__headers["Sec-Fetch-Dest"] = "empty"
+        self.__headers["Sec-Fetch-Mode"] = "cors"
+        self.__headers["Sec-Fetch-Site"] = "same-site"
 
     def __handle(self, field: str, s: str) -> list:
         try:
@@ -35,7 +35,7 @@ class Search:
             return var
 
     def __detailbook(self, parent, numdb, indexdb):
-        detail = self.parser.pyq_parser(
+        detail = self.__parser.pyq_parser(
             parent.eq(numdb),
             'td'
         ).eq(indexdb).text()
@@ -43,20 +43,20 @@ class Search:
 
     def search(self, keyword: str, page: int, proxy: Optional[str] = None, **kwargs):
 
-        user_agent = self.fake.user_agent()
+        user_agent = self.__fake.user_agent()
 
         keyword = keyword.replace(' ', '%20')
         page = int(page)
         page = page+1 if page == 0 else -page if '-' in str(page) else page
 
         url = f"https://library.bpk.go.id/search/keyword/{keyword}/{page}"
-        self.headers["User-Agent"] = user_agent
-        resp = self.session.request(
+        self.__headers["User-Agent"] = user_agent
+        resp = self.__session.request(
             method="GET",
             url=url,
             timeout=60,
             proxies=proxy,
-            headers=self.headers,
+            headers=self.__headers,
             **kwargs
         )
         status_code = resp.status_code
@@ -64,16 +64,16 @@ class Search:
         if status_code == 200:
             datas = []
             html = content.decode("utf-8")
-            data = self.parser.pyq_parser(
+            data = self.__parser.pyq_parser(
                 html,
                 '[class="col-lg-9"] [class="row"] [class="col-lg-10"]'
             )
             pages = []
-            for li in self.parser.pyq_parser(
+            for li in self.__parser.pyq_parser(
                 html,
                 'ul[class="pagination"] li'
             ):
-                tag_a = self.parser.pyq_parser(
+                tag_a = self.__parser.pyq_parser(
                     li,
                     'a'
                 ).text()
@@ -83,18 +83,18 @@ class Search:
 
             links = []
             for div in data:
-                link = self.parser.pyq_parser(
+                link = self.__parser.pyq_parser(
                     div,
                     'div[class="col-lg-10"] a'
                 ).attr('href')
                 links.append(f"https://library.bpk.go.id{link}")
             for link in links:
-                resp = self.session.request(
+                resp = self.__session.request(
                     method="GET",
                     url=link,
                     timeout=60,
                     proxies=proxy,
-                    headers=self.headers,
+                    headers=self.__headers,
                     **kwargs
                 )
                 content = resp.content
@@ -102,31 +102,31 @@ class Search:
                 if status_code == 200:
                     html_detail = content.decode("utf-8")
                     id = Utility.hashmd5(url=link)
-                    data_detail = self.parser.pyq_parser(
+                    data_detail = self.__parser.pyq_parser(
                         html_detail,
                         'div[class="row"]'
                     )
 
-                    img = self.parser.pyq_parser(
+                    img = self.__parser.pyq_parser(
                         data_detail,
                         'div[class="threecol"] img[class="centerimg"]'
                     ).attr('data-url')
-                    title = self.parser.pyq_parser(
+                    title = self.__parser.pyq_parser(
                         data_detail,
                         '[class="first"] h2'
                     ).text()
-                    details = self.parser.pyq_parser(
+                    details = self.__parser.pyq_parser(
                         data_detail,
                         'ul[class="price_features"] li'
                     )
 
-                    value = self.parser.pyq_parser(
+                    value = self.__parser.pyq_parser(
                         data_detail,
                         'tbody tr'
                     )
                     values = []
                     for v in value:
-                        x = self.parser.pyq_parser(
+                        x = self.__parser.pyq_parser(
                             v,
                             'td'
                         ).text()
@@ -141,11 +141,11 @@ class Search:
                         }
                         details.append(detail)
 
-                    li = self.parser.pyq_parser(
+                    li = self.__parser.pyq_parser(
                         data_detail,
                         'ul[class="price_features"] li span[class="right bold"]'
                     )
-                    span = self.parser.pyq_parser(
+                    span = self.__parser.pyq_parser(
                         li,
                         'span[class="right bold"]'
                     )
